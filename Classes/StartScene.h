@@ -1,5 +1,5 @@
-#ifndef __StartScene__
-#define __StartScene__
+#ifndef __StartScene_H__
+#define __StartScene_H__
 #include "cocos2d.h"
 
 USING_NS_CC;

@@ -1,5 +1,6 @@
 #include "StartScene.h"
 #include "VisibleRect.h"
+#include "MainScene.h"
 
 bool StartScene::init()
 {
@@ -29,4 +30,6 @@ Scene* StartScene::createScene()
 void StartScene::onStart(Ref* obj)
 {
 	log("hello start");
+	auto scene = MainScene::createScene();
+	Director::getInstance()->replaceScene(scene);
 }
