@@ -4,7 +4,7 @@ bool Player::init()
 {
 	_canMove = true;
 	_speed = 1;
-	_bombMaxNum = 1;
+	_bombMaxNum = 3;
 	_bombPresentNum = 0;
 	_bombPower = 1;
 	_left = false;
@@ -66,4 +66,15 @@ void Player::walkUp()
 	curPos.y += 1;
 
 	this->setPosition(curPos);
+}
+
+Bomb* Player::addBomb(int power, Vec2 pos)
+{
+	_bomb = Bomb::create(power);
+	_bomb->setPosition(pos);
+	increaseBombNum();
+	DelayTime* delayAction = DelayTime::create(2.0f);
+	CallFunc* callFunc = CallFunc::create(CC_CALLBACK_0(Player::decreaseBombNum, this));
+	this->runAction(Sequence::createWithTwoActions(delayAction, callFunc));
+	return _bomb;
 }

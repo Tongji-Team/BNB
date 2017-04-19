@@ -47,6 +47,20 @@ void MainScene::addListener()
 			break;
 		case 146:_player->alterUp();
 			break;
+		case 59:if (_player->getBombMaxNum() == _player->getBombPresentNum())
+				{
+					log("full bomb");
+				}
+				else
+				{
+					_player->addBomb(_player->getBombPower(), _player->getPosition());
+					this->addChild(_player->getBomb());
+					auto bomb = _player->getBomb();
+					DelayTime* delayAction = DelayTime::create(2.0f);
+					CallFunc* callFunc = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb));
+					this->runAction(Sequence::createWithTwoActions(delayAction, callFunc));
+				}
+				break;
 		}
 
 		if ((int)keyCode == 124 || (int)keyCode == 127 || (int)keyCode == 142 || (int)keyCode == 146)

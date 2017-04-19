@@ -1,6 +1,7 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 #include "cocos2d.h"
+#include "Bomb.h"
 
 USING_NS_CC;
 
@@ -29,6 +30,16 @@ public:
 	void walkUp();
 	void walkDown();
 
+	//接下来的函数用于处理炸弹
+	int getBombPresentNum(){ return _bombPresentNum; }
+	int getBombMaxNum(){ return _bombMaxNum; }
+	int getBombPower(){ return _bombPower; }
+	void increaseBombNum(){ ++_bombPresentNum; }
+	void decreaseBombNum(){ --_bombPresentNum; }
+	Bomb* getBomb(){ return _bomb; }
+
+	Bomb* addBomb(int power, Vec2 pos);
+
 private:
 	bool _canMove;//这个属性用于描述人物是否可以移动
 	int _speed;//用于描述人物的移动速度
@@ -41,6 +52,8 @@ private:
 	bool _right;
 	bool _up;
 	bool _down;
+
+	Bomb* _bomb;
 };
 
 #endif
