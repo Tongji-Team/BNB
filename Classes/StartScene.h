@@ -10,6 +10,7 @@ public:
 	bool init();
 	static Scene* createScene();
 	void onStart(Ref* obj);
+	void onSign(Ref* obj);
 	CREATE_FUNC(StartScene);
 };
 
