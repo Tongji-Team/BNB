@@ -1,6 +1,7 @@
 #include "StartScene.h"
 #include "VisibleRect.h"
 #include "MainScene.h"
+#include"SignIn.h"
 
 bool StartScene::init()
 {
@@ -12,7 +13,13 @@ bool StartScene::init()
 
 	auto label1 = Label::createWithTTF("Start", "fonts/Marker Felt.ttf", 50);
 	auto startItem1 = MenuItemLabel::create(label1, CC_CALLBACK_1(StartScene::onStart, this));
-	auto menu = Menu::create(startItem1, nullptr);
+
+	auto label2 = Label::createWithTTF("Sign", "fonts/Marker Felt.ttf", 50);
+	auto startItem2 = MenuItemLabel::create(label2, CC_CALLBACK_1(StartScene::onSign, this));
+
+	auto menu = Menu::create(startItem1,startItem2, nullptr);
+	menu->alignItemsVertically();
+
 	menu->setPosition(VisibleRect::center());
 	this->addChild(menu);
 
@@ -31,5 +38,12 @@ void StartScene::onStart(Ref* obj)
 {
 	log("hello start");
 	auto scene = MainScene::createScene();
+	Director::getInstance()->replaceScene(scene);
+}
+
+void StartScene::onSign(Ref* obj)
+{
+	log("Sign");
+	auto scene = SignIn::createScene();
 	Director::getInstance()->replaceScene(scene);
 }
