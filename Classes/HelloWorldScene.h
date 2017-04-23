@@ -5,6 +5,8 @@
 
 class HelloWorld : public cocos2d::Layer
 {
+    cocos2d::CCTMXTiledMap *_tileMap;
+
 public:
     static cocos2d::Scene* createScene();
 
