@@ -29,7 +29,7 @@ bool HelloWorld::init()
     }
     
     _tileMap = CCTMXTiledMap::create("Tiled_map.tmx"); 
-	addChild(_tileMap);
+    addChild(_tileMap);
 
     return true;
 }
