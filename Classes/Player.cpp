@@ -3,7 +3,7 @@
 bool Player::init()
 {
 	_canMove = true;
-	_speed = 1;
+	_speed = 5;
 	_bombMaxNum = 3;
 	_bombPresentNum = 0;
 	_bombPower = 1;
@@ -36,7 +36,7 @@ void Player::walkLeft()
 {
 	auto curPos = this->getPosition();
 
-	curPos.x -= 2;//改变精灵位置
+	curPos.x -= _speed;//改变精灵位置
 
 	this->setPosition(curPos);
 }
@@ -45,7 +45,7 @@ void Player::walkRight()
 {
 	auto curPos = this->getPosition();
 
-	curPos.x += 2;
+	curPos.x += _speed;
 
 	this->setPosition(curPos);
 }
@@ -54,7 +54,7 @@ void Player::walkDown()
 {
 	auto curPos = this->getPosition();
 
-	curPos.y -= 1;
+	curPos.y -= _speed;
 
 	this->setPosition(curPos);
 }
@@ -63,7 +63,7 @@ void Player::walkUp()
 {
 	auto curPos = this->getPosition();
 
-	curPos.y += 1;
+	curPos.y += _speed;
 
 	this->setPosition(curPos);
 }

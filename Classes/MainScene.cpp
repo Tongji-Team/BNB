@@ -54,8 +54,8 @@ void MainScene::addListener()
 				else
 				{
 					_player->addBomb(_player->getBombPower(), _player->getPosition());
-					this->addChild(_player->getBomb());
 					auto bomb = _player->getBomb();
+					this->addChild(bomb);
 					DelayTime* delayAction = DelayTime::create(2.0f);
 					CallFunc* callFunc = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb));
 					this->runAction(Sequence::createWithTwoActions(delayAction, callFunc));
