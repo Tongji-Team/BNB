@@ -12,10 +12,15 @@ Scene* MainScene::createScene()
 
 bool MainScene::init()
 {
+	if (!Layer::init())
+		return false;
+
 	log("hello mainscene");
 
-	addRole();
+	
 	addListener();
+	addMap();
+	
 
 	return true;
 }
@@ -26,11 +31,11 @@ void MainScene::onEnter()
 	_world->setGravity(Vec2(0, 0));
 }
 
-void MainScene::addRole()
+void MainScene::addRole(float x,float y)
 {
 	_player = Player::create();
-	_player->setPosition(VisibleRect::rightBottom());
-	this->addChild(_player);
+	_player->setPosition(Vec2(x,y));
+	this->addChild(_player,100);
 }
 
 void MainScene::addListener()
@@ -83,6 +88,32 @@ void MainScene::addListener()
 	};
 
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(_listener_key, this);
+}
+
+bool MainScene::addMap()
+{
+	_tileMap = CCTMXTiledMap::create("maps/Tiled_map.tmx");
+	if (_tileMap == nullptr)
+	{
+		log("failed to open the map");
+		return false;
+	}
+
+	auto origin = Vec2(0.5, 0.5);
+	_tileMap->setAnchorPoint(origin);
+	_tileMap->setPosition(VisibleRect::center());
+	addChild(_tileMap,0);
+
+	TMXObjectGroup* group = _tileMap->getObjectGroup("object");
+	ValueMap spawnPoint = group->getObject("player");
+
+	float x = spawnPoint["x"].asFloat();
+	float y = spawnPoint["y"].asFloat();
+	log("(%f,%f)",x,y);
+
+	addRole(x+380, y+40);//将瓦片地图上的坐标转换为像素点坐标
+
+	return true;
 }
 
 void MainScene::update(float dt)
