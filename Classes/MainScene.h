@@ -8,6 +8,7 @@ USING_NS_CC;
 class MainScene :public cocos2d::Layer
 {
 	cocos2d::CCTMXTiledMap *_tileMap;
+	cocos2d::TMXLayer* _collidable;//保存碰撞层对象
 
 public:
 	static cocos2d::Scene* createScene();
@@ -27,6 +28,10 @@ public:
 	void update(float dt) override;
 
 	bool addMap();
+
+	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
+
+	bool checkCollidable(Point pos);
 
 private:
 	PhysicsWorld* _world;

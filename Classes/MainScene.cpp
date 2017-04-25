@@ -19,7 +19,7 @@ bool MainScene::init()
 
 	
 	addListener();
-	addMap();
+	addMap();//里面包含添加角色的功能
 	
 
 	return true;
@@ -34,7 +34,9 @@ void MainScene::onEnter()
 void MainScene::addRole(float x,float y)
 {
 	_player = Player::create();
-	_player->setPosition(Vec2(x,y));
+	_player->setAnchorPoint(Vec2(0.5,0.5));
+	_player->setScale(0.4);
+	_player->setPosition(Vec2(x, y));
 	this->addChild(_player,100);
 }
 
@@ -99,9 +101,10 @@ bool MainScene::addMap()
 		return false;
 	}
 
-	auto origin = Vec2(0.5, 0.5);
+	auto origin = Vec2(0.5,0.5);
 	_tileMap->setAnchorPoint(origin);
 	_tileMap->setPosition(VisibleRect::center());
+	log("center:%f,%f", VisibleRect::center().x, VisibleRect::center().y);
 	addChild(_tileMap,0);
 
 	TMXObjectGroup* group = _tileMap->getObjectGroup("object");
@@ -109,21 +112,95 @@ bool MainScene::addMap()
 
 	float x = spawnPoint["x"].asFloat();
 	float y = spawnPoint["y"].asFloat();
-	log("(%f,%f)",x,y);
+	log("PlayerPoint:%f,%f", x, y);
+	log("height:%f", _tileMap->getMapSize().height);
 
-	addRole(x+380, y+40);//将瓦片地图上的坐标转换为像素点坐标
+	addRole(0.8*x + 400, 600 - 0.8*y);//将瓦片地图上的坐标转换为像素点坐标
+
+	_collidable = _tileMap->getLayer("collision");
 
 	return true;
 }
 
 void MainScene::update(float dt)
 {
+	auto pos = _player->getPosition();
 	if (_player->getLeft())
-		_player->walkLeft();
+	{
+		pos = _player->walkLeft();
+		if (this->checkCollidable(pos-Vec2(16,16))||this->checkCollidable(pos-Vec2(16,-16)))//检查左下和左上
+		{
+			log("collided");
+		}
+		else
+		{
+			_player->setPosition(pos);
+		}
+	}
 	if (_player->getRight())
-		_player->walkRight();
+	{
+		pos = _player->walkRight();
+		if (this->checkCollidable(pos+Vec2(16,16))||this->checkCollidable(pos+Vec2(16,-16)))//检查右下和右上
+		{
+			log("collided");
+		}
+		else
+		{
+			_player->setPosition(pos);
+		}
+	}
 	if (_player->getUp())
-		_player->walkUp();
+	{
+		pos = _player->walkUp();
+		if (this->checkCollidable(pos+Vec2(16,16))||this->checkCollidable(pos+Vec2(-16,16)))//检查左上和右上
+		{
+			log("collided");
+		}
+		else
+		{
+			_player->setPosition(pos);
+		}
+	}
 	if (_player->getDown())
-		_player->walkDown();
+	{
+		pos = _player->walkDown();
+		if (this->checkCollidable(pos-Vec2(16,16))||this->checkCollidable(pos-Vec2(-16,16)))//检查左下和右下
+		{
+			log("collided");
+		}
+		else
+		{
+			_player->setPosition(pos);
+		}
+	}
+}
+
+Point MainScene::tileCoordFromPosition(Point pos)
+{
+	int x = (pos.x - 340) / 40;
+	int y = (660 - pos.y) / 40;
+	return Point(x, y);
+}
+
+bool MainScene::checkCollidable(Point pos)
+{
+	log("%f,%f", pos.x, pos.y);
+	Point tileCoord = this->tileCoordFromPosition(pos);
+	int tileGid = _collidable->getTileGIDAt(tileCoord);
+
+	if (tileGid > 0)
+	{
+		Value prop = _tileMap->getPropertiesForGID(tileGid);
+		ValueMap propValueMap = prop.asValueMap();
+
+		std::string collision = propValueMap["Collidable"].asString();
+
+		if (collision == "true")//碰撞成功
+		{
+			auto vec = _player->getAnchorPointInPoints();
+			log("ancherpoint:%f,%f", vec.x, vec.y);
+			return true;
+		}
+	}
+	return false;
 }

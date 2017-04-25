@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "MainScene.h"
 
 bool Player::init()
 {
@@ -32,41 +33,42 @@ Player* Player::create()
 	}
 }
 
-void Player::walkLeft()
+Point Player::walkLeft()
 {
 	auto curPos = this->getPosition();
 
 	curPos.x -= _speed;//改变精灵位置
 
-	this->setPosition(curPos);
+	return curPos;
 }
 
-void Player::walkRight()
+Point Player::walkRight()
 {
 	auto curPos = this->getPosition();
 
 	curPos.x += _speed;
 
-	this->setPosition(curPos);
+	return curPos;
 }
 
-void Player::walkDown()
+Point Player::walkDown()
 {
 	auto curPos = this->getPosition();
 
 	curPos.y -= _speed;
 
-	this->setPosition(curPos);
+	return curPos;
 }
 
-void Player::walkUp()
+Point Player::walkUp()
 {
 	auto curPos = this->getPosition();
 
 	curPos.y += _speed;
 
-	this->setPosition(curPos);
+	return curPos;
 }
+
 
 Bomb* Player::addBomb(int power, Vec2 pos)
 {

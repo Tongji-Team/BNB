@@ -25,10 +25,10 @@ public:
 	void alterDown(){ _down = (_down == false ? true : false); }
 
 	//接下来四个函数用于使人物向四个方向移动
-	void walkLeft();
-	void walkRight();
-	void walkUp();
-	void walkDown();
+	Point walkLeft();
+	Point walkRight();
+	Point walkUp();
+	Point walkDown();
 
 	//接下来的函数用于处理炸弹
 	int getBombPresentNum(){ return _bombPresentNum; }
