@@ -6,23 +6,28 @@
 #include"StartScene.h"
 
 USING_NS_CC_EXT;
-USING_NS_CC;
 
-class SignIn : public cocos2d::Layer, public EditBoxDelegate
+class SignIn : public cocos2d::Layer, public cocos2d::TextFieldDelegate
 {
 public:
 	static cocos2d::Scene* createScene();
 
 	virtual bool init();
+	virtual void onEnter();
+	virtual void onExit();
 
-	//开始编辑时  
-	virtual void editBoxEditingDidBegin(EditBox* editBox);
-	//结束编辑时  
-	virtual void editBoxEditingDidEnd(EditBox* editBox);
-	//编辑框文字改变时  
-	virtual void editBoxTextChanged(EditBox* editBox, const std::string& text);
-	//触发返回后  
-	virtual void editBoxReturn(EditBox* editBox);
+	bool touchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
+	void touchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
+	void touchEnded(cocos2d::Touch *touch, cocos2d::Event *event);
+
+	// 当用户启动虚拟键盘的时候回调函数
+	virtual bool onTextFieldAttachWithIME(TextFieldTTF * sender);
+	// 当用户关闭虚拟键盘的时候回调函数
+	virtual bool onTextFieldDetachWithIME(TextFieldTTF * sender);
+	// 当用户进行输入 虚拟键盘的时候回调函数
+	virtual bool onTextFieldInsertText(TextFieldTTF * sender, const char * text, size_t nLen);
+	// 当用户进行删除文字 虚拟键盘的时候回调函数
+	virtual bool onTextFieldDeleteBackward(TextFieldTTF * sender, const char * delText, size_t nLen);
 
 	void ClickInCall(Ref* obj);
 	void ClickUpCall(Ref* obj);
@@ -30,8 +35,8 @@ public:
 	CREATE_FUNC(SignIn);
 
 private:
-	EditBox* _editName;
-	EditBox* _editPassword;
+	TextFieldTTF* _Name;
+	TextFieldTTF* _Password;
 
 };
 
