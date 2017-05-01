@@ -60,7 +60,7 @@ void MainScene::addListener()
 				}
 				else
 				{
-					_player->addBomb(_player->getBombPower(), _player->getPosition());
+					_player->addBomb(_player->getBombPower(), getBombPosition(tileCoordFromPosition(_player->getPosition())));
 					auto bomb = _player->getBomb();
 					this->addChild(bomb);
 					DelayTime* delayAction = DelayTime::create(2.0f);
@@ -92,6 +92,11 @@ void MainScene::addListener()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(_listener_key, this);
 }
 
+Point MainScene::getBombPosition(Point coord)
+{
+	return this->_mapCoord[coord.x][coord.y];
+}
+
 bool MainScene::addMap()
 {
 	_tileMap = CCTMXTiledMap::create("maps/Tiled_map.tmx");
@@ -118,6 +123,18 @@ bool MainScene::addMap()
 	addRole(0.8*x + 400, 600 - 0.8*y);//将瓦片地图上的坐标转换为像素点坐标
 
 	_collidable = _tileMap->getLayer("collision");
+	auto road = _tileMap->getLayer("road");
+
+	for (int i = 0; i < 15; ++i)
+	{
+		std::vector<Vec2> map;
+		for (int j = 0; j < 15; ++j)
+		{
+			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
+			log("%f,%f", map[j].x, map[j].y);
+		}
+		_mapCoord.push_back(map);
+	}
 
 	return true;
 }

@@ -69,7 +69,6 @@ Point Player::walkUp()
 	return curPos;
 }
 
-
 Bomb* Player::addBomb(int power, Vec2 pos)
 {
 	_bomb = Bomb::create(power);

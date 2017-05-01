@@ -2,6 +2,7 @@
 #define __MainScene_H__
 #include "cocos2d.h"
 #include "Player.h"
+#include <vector>
 
 USING_NS_CC;
 
@@ -32,6 +33,9 @@ public:
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
 	bool checkCollidable(Point pos);
+
+	Point getBombPosition(Point coord);
+	std::vector<std::vector<Vec2>> _mapCoord;
 
 private:
 	PhysicsWorld* _world;
