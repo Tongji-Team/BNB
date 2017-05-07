@@ -33,7 +33,6 @@ bool SignIn::init()
 	_Name->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height*0.75));
 	_Name->setColorSpaceHolder(Color3B::BLACK);
 	_Name->setDelegate(this);
-	
 	addChild(_Name);
 
 	_Password = TextFieldTTF::textFieldWithPlaceHolder("Password", "Arial", 30);
@@ -41,50 +40,53 @@ bool SignIn::init()
 	_Password->setSecureTextEntry(true);
 	_Password->setColorSpaceHolder(Color3B::BLACK);
 	_Password->setDelegate(this);
-
 	addChild(_Password);
 
 	auto signInLabel = Label::createWithTTF("Sign in", "fonts/Marker Felt.ttf", 50);
-	auto signInItem = MenuItemLabel::create(signInLabel, CC_CALLBACK_1(SignIn::ClickInCall, this));
+	auto signInItem = MenuItemLabel::create(signInLabel, CC_CALLBACK_1(SignIn::clickInCall, this));
 
 	auto signUpLabel = Label::createWithTTF("Sign up", "fonts/Marker Felt.ttf", 50);
-	auto signUpItem = MenuItemLabel::create(signUpLabel, CC_CALLBACK_1(SignIn::ClickUpCall, this));
+	auto signUpItem = MenuItemLabel::create(signUpLabel, CC_CALLBACK_1(SignIn::clickUpCall, this));
 
-	auto menu = Menu::create(signInItem,signUpItem, nullptr);
+	auto menu = Menu::create(signInItem, signUpItem, nullptr);
 	menu->alignItemsHorizontally();
 	menu->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height*0.25));
 	this->addChild(menu);
-	
+
 }
 
 //sign up操作：新的账号存入本地，后返回Startscene
 //存储路径为平台默认"可写入目录"下的"\data\Users.txt"
 //win32平台存储路径："\proj.win32\Debug.win32\data\Users.txt"
-void SignIn::ClickUpCall(Ref* obj)
+void SignIn::clickUpCall(Ref* obj)
 {
-	log("Sign ");
+	log("Sign up");
 	auto sharedFileUtils = FileUtils::getInstance();
 	std::string writablePath = sharedFileUtils->fullPathForFilename("/data/Users.txt");
-	std::ofstream outfile(writablePath.c_str(),std::ofstream::app);
+	std::ofstream outfile(writablePath.c_str(), std::ofstream::app);
 	outfile << _Name->getString() << " " << _Password->getString() << std::endl;
 
-	auto scene = StartScene::createScene();
-	Director::getInstance()->replaceScene(scene);
+	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
+	std::string name = _Name->getString();
+	label->setString("Hello " + name + " !");
+	Director::getInstance()->popScene();
 }
 
 //sign in操作：返回Startscene
-void SignIn::ClickInCall(Ref* obj)
+void SignIn::clickInCall(Ref* obj)
 {
 	log("Sign in");
-	auto scene = StartScene::createScene();
-	Director::getInstance()->replaceScene(scene);
+	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
+	std::string name = _Name->getString();
+	label->setString("Hello " + name + " !");
+	Director::getInstance()->popScene();
 }
 
 
 void SignIn::onEnter()
 {
 	Layer::onEnter();
-	log("Sign onEnter");
+	log("enter SignIn layer");
 
 	auto listener = EventListenerTouchOneByOne::create();
 
@@ -101,7 +103,7 @@ void SignIn::onEnter()
 
 bool SignIn::touchBegan(Touch* touch, Event* event)
 {
-	log("onTouchBegin");
+	log("on touch begin");
 	auto target = static_cast<TextFieldTTF*>(event->getCurrentTarget());
 
 	//获取并判断触摸点是否在文本框内
@@ -118,19 +120,19 @@ bool SignIn::touchBegan(Touch* touch, Event* event)
 
 void SignIn::touchMoved(Touch *touch, Event *event)
 {
-	log("onTouchMoved");
+	log("on touch moved");
 }
 
 void SignIn::touchEnded(Touch *touch, Event *event)
 {
-	log("onTouchEnded");
-	
+	log("on touch ended");
+
 }
 
 void SignIn::onExit()
 {
 	Layer::onExit();
-	log("SignIn onExit");
+	log("exit SignIn scene");
 	Director::getInstance()->getEventDispatcher()->removeEventListenersForTarget(_Name);
 	Director::getInstance()->getEventDispatcher()->removeEventListenersForTarget(_Password);
 }
@@ -138,15 +140,15 @@ void SignIn::onExit()
 
 bool SignIn::onTextFieldAttachWithIME(TextFieldTTF *pSender)
 {
-	log("onAttach");
+	log("attach the textfield");
 	pSender->setColorSpaceHolder(Color3B::WHITE);
 	pSender->setColor(Color3B::WHITE);
-	return false;                       
+	return false;
 }
 
 bool SignIn::onTextFieldDetachWithIME(TextFieldTTF *pSender)
 {
-	log("detach");
+	log("detach the textfield");
 	pSender->setColorSpaceHolder(Color3B::BLACK);
 	pSender->setColor(Color3B::BLACK);
 	return false;
@@ -155,17 +157,22 @@ bool SignIn::onTextFieldDetachWithIME(TextFieldTTF *pSender)
 bool SignIn::onTextFieldInsertText(TextFieldTTF *pSender, const char *text, size_t nLen)
 {
 	log("inserting text");
-	 //空格和\n作为输入结束符  
-    if (*text=='\n'||*text == ' ')  
-    {  
-        pSender->detachWithIME(); 
-        return true; 
-    }  
+	//空格和\n作为输入结束符  
+	if (*text == '\n' || *text == ' ')
+	{
+		pSender->detachWithIME();
+		return true;
+	}
 	return false;
 }
 
 bool SignIn::onTextFieldDeleteBackward(TextFieldTTF* sender, const char* delText, size_t nLen)
 {
-	log("delete text");
+	log("deleting text");
 	return false;
+}
+
+void SignIn::setStartSce(StartScene* sptr)
+{
+	_startSce = sptr;
 }

@@ -9,8 +9,10 @@ class StartScene : public Layer
 public:
 	bool init();
 	static Scene* createScene();
+
 	void onStart(Ref* obj);
 	void onSign(Ref* obj);
+	void onRoom(Ref* obj);
 	CREATE_FUNC(StartScene);
 };
 
