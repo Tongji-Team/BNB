@@ -62,10 +62,12 @@ void MainScene::addListener()
 				{
 					_player->addBomb(_player->getBombPower(), getBombPosition(tileCoordFromPosition(_player->getPosition())));
 					auto bomb = _player->getBomb();
+					bomb->setScale(0.4);
 					this->addChild(bomb);
 					DelayTime* delayAction = DelayTime::create(2.0f);
-					CallFunc* callFunc = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb));
-					this->runAction(Sequence::createWithTwoActions(delayAction, callFunc));
+					CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, tileCoordFromPosition(bomb->getPosition())));
+					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb));
+					this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
 				}
 				break;
 		}
@@ -94,6 +96,7 @@ void MainScene::addListener()
 
 Point MainScene::getBombPosition(Point coord)
 {
+	_mapProp[coord.x][coord.y] = 1;
 	return this->_mapCoord[coord.x][coord.y];
 }
 
@@ -128,12 +131,30 @@ bool MainScene::addMap()
 	for (int i = 0; i < 15; ++i)
 	{
 		std::vector<Vec2> map;
+		std::vector<int> prop;
 		for (int j = 0; j < 15; ++j)
 		{
 			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
 			log("%f,%f", map[j].x, map[j].y);
+
+			int tileGid = _collidable->getTileGIDAt(Point(i,j));
+			if (tileGid>0)
+			{
+				Value mapProp = _tileMap->getPropertiesForGID(tileGid);
+				ValueMap propValueMap = mapProp.asValueMap();
+
+				std::string collision = propValueMap["Collidable"].asString();
+
+				if (collision == "true")//找到了碰撞块
+					prop.push_back(1);//1代表该块为碰撞块
+				else
+					prop.push_back(0);//0代表该块为非碰撞块
+			}
+			else
+				prop.push_back(0);
 		}
 		_mapCoord.push_back(map);
+		_mapProp.push_back(prop);
 	}
 
 	return true;
@@ -203,21 +224,11 @@ bool MainScene::checkCollidable(Point pos)
 {
 	log("%f,%f", pos.x, pos.y);
 	Point tileCoord = this->tileCoordFromPosition(pos);
-	int tileGid = _collidable->getTileGIDAt(tileCoord);
+	return _mapProp[tileCoord.x][tileCoord.y] == 1;
+}
 
-	if (tileGid > 0)
-	{
-		Value prop = _tileMap->getPropertiesForGID(tileGid);
-		ValueMap propValueMap = prop.asValueMap();
-
-		std::string collision = propValueMap["Collidable"].asString();
-
-		if (collision == "true")//碰撞成功
-		{
-			auto vec = _player->getAnchorPointInPoints();
-			log("ancherpoint:%f,%f", vec.x, vec.y);
-			return true;
-		}
-	}
-	return false;
+void MainScene::removeBlock(Point coord)
+{
+	log("remove:%f,%f", coord.x, coord.y);
+	_mapProp[coord.x][coord.y] = 0;
 }

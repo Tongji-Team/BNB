@@ -35,7 +35,11 @@ public:
 	bool checkCollidable(Point pos);
 
 	Point getBombPosition(Point coord);
+
+	void removeBlock(Point coord);
+
 	std::vector<std::vector<Vec2>> _mapCoord;
+	std::vector<std::vector<int>> _mapProp;
 
 private:
 	PhysicsWorld* _world;
