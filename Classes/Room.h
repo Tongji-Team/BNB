@@ -11,13 +11,15 @@ public:
 	virtual bool init();
 
 	void clickInitMenuCallBack(Ref* obj);
-	void clickSelectedMenuCallBack(Ref* obj,int tag);
-	void clickStartCallBack(Ref* obj);
+	void clickSelectedMenuCallBack(Ref* obj,int mapNum);
+	void clickCreatRoomCallBack(Ref* obj,int mapNum);
+	void clickFindRoomCallBack(Ref* obj,int mapNum);
+	void clickStartCallBack(Ref* obj, int mapNum);
 
 	void addSelectedMenu();
 	void removeSelectedMenu();
 	void addMapNames();
-	void changeMapWindow(int tag);
+	void changeMapWindow();
 
 	CREATE_FUNC(Room);
 private:
@@ -26,6 +28,7 @@ private:
 	cocos2d::Label* _selectedMap;
 	std::vector<std::string> _mapNames;
 	cocos2d::Sprite* _mapWindow;
+	int _currentMapTag = 0;
 };
 
 #endif 
