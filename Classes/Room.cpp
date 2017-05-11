@@ -1,5 +1,8 @@
 #include"Room.h"
 #include"MainScene.h"
+#include <boost/asio.hpp>
+#include <boost/thread/thread.hpp>
+#include <iostream>
 
 USING_NS_CC;
 
@@ -92,11 +95,13 @@ void Room::clickStartCallBack(Ref* obj, int mapNum)
 void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 {
 	//Ô¤Áô´ý²¹³ä
+	boost::thread threadBroadcast(&initBroadcast, this);
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 {
 	//Ô¤Áô´ý²¹³ä
+	boost::thread threadClient(&initClient, this);
 }
 void Room::addSelectedMenu()
 {
@@ -126,3 +131,48 @@ void Room::changeMapWindow()
 	_mapWindow->setPosition(visibleSize.width*0.25, visibleSize.height / 2);
 	addChild(_mapWindow);
 }
+
+void Room::initBroadcast(Room* ptr)
+{
+	namespace ip = boost::asio::ip;
+	boost::asio::io_service io_service;
+
+	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 0));
+	socket.set_option(boost::asio::socket_base::broadcast(true));
+	ip::udp::endpoint broadcast_endpoint(ip::address_v4::broadcast(), 6001);
+
+	char buf[50];
+	int icount = 1;
+	while (ptr->_clientNum < 5)
+	{
+		sprintf(buf, "Message: %d, player number: %d, map: %d", icount, ptr->_clientNum, ptr->_currentMapTag);
+		log("Message: %d", icount);
+		++icount;
+		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
+		Sleep(2000);
+	}
+
+	socket.close();
+}
+
+void Room::initClient(Room* ptr)
+{
+	namespace ip = boost::asio::ip;
+	boost::asio::io_service io_service;
+
+	bool connected = false;
+
+	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6001));
+	ip::udp::endpoint sender_endpoint;
+
+	char buf[50];
+	while (1)
+	{
+		std::size_t bytes_transferred = socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
+		log("got %d bytes.", bytes_transferred);
+		log("the message: %s", buf);
+	}
+	
+	socket.close();
+}
+

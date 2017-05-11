@@ -21,6 +21,9 @@ public:
 	void addMapNames();
 	void changeMapWindow();
 
+	void static initBroadcast(Room* ptr);
+	void static initClient(Room* ptr);
+
 	CREATE_FUNC(Room);
 private:
 	cocos2d::Menu* _initMenu;
@@ -29,6 +32,7 @@ private:
 	std::vector<std::string> _mapNames;
 	cocos2d::Sprite* _mapWindow;
 	int _currentMapTag = 0;
+	int _clientNum = 1;
 };
 
 #endif 
