@@ -40,10 +40,22 @@ bool Room::init()
 	this->addChild(_initMenu);
 
 	auto startLabel = Label::createWithTTF("Start", "fonts/Marker Felt.ttf", 40);
-	auto startItem = MenuItemLabel::create(startLabel, CC_CALLBACK_1(Room::clickStartCallBack, this));
+	auto startItem = MenuItemLabel::create(startLabel, CC_CALLBACK_1(Room::clickStartCallBack, this,_currentMapTag));
 	auto startMenu = Menu::create(startItem, nullptr);
 	startMenu->setPosition(visibleSize.width*0.8, visibleSize.height/2 - 200);
 	this->addChild(startMenu);
+
+	auto findRoomLabel = Label::createWithTTF("Find room", "fonts/Marker Felt.ttf", 40);
+	auto findRoomItem = MenuItemLabel::create(findRoomLabel, CC_CALLBACK_1(Room::clickFindRoomCallBack, this,_currentMapTag));
+	auto findRoomMenu = Menu::create(findRoomItem, nullptr);
+	findRoomMenu->setPosition(visibleSize.width*0.8, visibleSize.height / 2 + 200);
+	this->addChild(findRoomMenu);
+
+	auto creatRoomLabel = Label::createWithTTF("Creat room", "fonts/Marker Felt.ttf", 40);
+	auto creatRoomItem = MenuItemLabel::create(creatRoomLabel, CC_CALLBACK_1(Room::clickCreatRoomCallBack, this, _currentMapTag));
+	auto creatRoomMenu = Menu::create(creatRoomItem, nullptr);
+	creatRoomMenu->setPosition(visibleSize.width*0.6, visibleSize.height / 2 + 200);
+	this->addChild(creatRoomMenu);
 
 	addMapNames();
 
@@ -62,25 +74,35 @@ void Room::clickInitMenuCallBack(Ref* obj)
 	addSelectedMenu();
 }
 
-void Room::clickSelectedMenuCallBack(Ref* obj,int tag)
+void Room::clickSelectedMenuCallBack(Ref* obj,int mapNum)
 {
 	log("selectedMenu clicked");
-	_selectedMap->setString(_mapNames[tag]);
-	changeMapWindow(tag);
+	_currentMapTag = mapNum;
+	_selectedMap->setString(_mapNames[_currentMapTag]);
+	changeMapWindow();
 	removeSelectedMenu();
 }
 
-void Room::clickStartCallBack(Ref* obj)
+void Room::clickStartCallBack(Ref* obj, int mapNum)
 {
-	log("hello start");
+    log("hello start");
 	auto scene = MainScene::createScene();
 	Director::getInstance()->replaceScene(scene);
+}
+void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
+{
+	//Ô¤Áô´ý²¹³ä
+}
+
+void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
+{
+	//Ô¤Áô´ý²¹³ä
 }
 void Room::addSelectedMenu()
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto mapLabel1 = Label::createWithTTF("map1", "fonts/Marker Felt.ttf", 50);
-	auto mapItem1 = MenuItemLabel::create(mapLabel1,CC_CALLBACK_1(Room::clickSelectedMenuCallBack,this,0));
+	auto mapItem1 = MenuItemLabel::create(mapLabel1,CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 0));
 	auto mapLabel2 = Label::createWithTTF("map2", "fonts/Marker Felt.ttf", 50);
 	auto mapItem2 = MenuItemLabel::create(mapLabel2, CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 1));
 
@@ -95,10 +117,10 @@ void Room::removeSelectedMenu()
 	removeChild(_selectedMenu);
 }
 
-void Room::changeMapWindow(int tag)
+void Room::changeMapWindow()
 {
 	removeChild(_mapWindow);
-	__String* mapName = __String::createWithFormat("image/map%d.png", ++tag);
+	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag + 1);
 	_mapWindow = Sprite::create(mapName->getCString());
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	_mapWindow->setPosition(visibleSize.width*0.25, visibleSize.height / 2);
