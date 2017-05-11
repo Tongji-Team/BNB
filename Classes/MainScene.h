@@ -2,6 +2,7 @@
 #define __MainScene_H__
 #include "cocos2d.h"
 #include "Player.h"
+#include "Item.h"
 #include <vector>
 
 USING_NS_CC;
@@ -30,6 +31,8 @@ public:
 
 	bool addMap();
 
+	void addItem(Vec2 pointer);
+
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
 	bool checkCollidable(Point pos);
@@ -45,6 +48,8 @@ private:
 	PhysicsWorld* _world;
 
 	Player* _player;
+
+	Item* _item;
 
 	EventListenerKeyboard* _listener_key;
 };

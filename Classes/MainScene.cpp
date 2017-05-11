@@ -1,5 +1,6 @@
 #include "MainScene.h"
 #include "VisibleRect.h"
+#include "Item.h"
 
 Scene* MainScene::createScene()
 {
@@ -20,7 +21,7 @@ bool MainScene::init()
 	
 	addListener();
 	addMap();//里面包含添加角色的功能
-	
+	addItem(_mapCoord[7][7]);
 
 	return true;
 }
@@ -155,6 +156,14 @@ bool MainScene::addMap()
 	}
 
 	return true;
+}
+
+void MainScene::addItem(Vec2 pointer)
+{
+	_item = Item::create(1);
+	_item->setAnchorPoint(Point(0.5, 0.5));
+	_item->setPosition(pointer);
+	this->addChild(_item, 50);
 }
 
 void MainScene::update(float dt)
