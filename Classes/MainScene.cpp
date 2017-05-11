@@ -118,14 +118,15 @@ bool MainScene::addMap()
 	TMXObjectGroup* group = _tileMap->getObjectGroup("object");
 	ValueMap spawnPoint = group->getObject("player");
 
-	float x = spawnPoint["x"].asFloat();
-	float y = spawnPoint["y"].asFloat();
+	auto x = spawnPoint["x"].asFloat();
+	auto y = spawnPoint["y"].asFloat();
 	log("PlayerPoint:%f,%f", x, y);
 	log("height:%f", _tileMap->getMapSize().height);
 
-	addRole(0.8*x + 400, 600 - 0.8*y);//将瓦片地图上的坐标转换为像素点坐标
+	addRole(x + 360, y + 80);//将瓦片地图上的坐标转换为像素点坐标
 
 	_collidable = _tileMap->getLayer("collision");
+	auto item = _tileMap->getLayer("item");
 	auto road = _tileMap->getLayer("road");
 
 	for (int i = 0; i < 15; ++i)
@@ -137,21 +138,17 @@ bool MainScene::addMap()
 			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
 			log("%f,%f", map[j].x, map[j].y);
 
-			int tileGid = _collidable->getTileGIDAt(Point(i,j));
-			if (tileGid>0)
-			{
-				Value mapProp = _tileMap->getPropertiesForGID(tileGid);
-				ValueMap propValueMap = mapProp.asValueMap();
+			auto tileGidCol = _collidable->getTileGIDAt(Point(i,j));
+			auto tileGidIte = item->getTileGIDAt(Point(i, j));
 
-				std::string collision = propValueMap["Collidable"].asString();
+			if (tileGidCol > 0)
+				prop.push_back(1);//1代表该块为碰撞块
 
-				if (collision == "true")//找到了碰撞块
-					prop.push_back(1);//1代表该块为碰撞块
-				else
-					prop.push_back(0);//0代表该块为非碰撞块
-			}
+			else if (tileGidIte > 0)
+				prop.push_back(2);//2代表该块为道具块
+
 			else
-				prop.push_back(0);
+				prop.push_back(0);//0代表无障碍物
 		}
 		_mapCoord.push_back(map);
 		_mapProp.push_back(prop);
@@ -224,7 +221,7 @@ bool MainScene::checkCollidable(Point pos)
 {
 	log("%f,%f", pos.x, pos.y);
 	Point tileCoord = this->tileCoordFromPosition(pos);
-	return _mapProp[tileCoord.x][tileCoord.y] == 1;
+	return _mapProp[tileCoord.x][tileCoord.y] != 0;
 }
 
 void MainScene::removeBlock(Point coord)
