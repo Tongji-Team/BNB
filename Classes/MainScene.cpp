@@ -23,6 +23,7 @@ bool MainScene::init()
 	addListener();
 	addMap();//里面包含添加角色的功能
 	addItem();
+	addEnemy();
 
 	return true;
 }
@@ -33,13 +34,14 @@ void MainScene::onEnter()
 	_world->setGravity(Vec2(0, 0));
 }
 
-void MainScene::addRole(float x,float y)
+Player* MainScene::addRole(float x,float y)
 {
-	_player = Player::create();
-	_player->setAnchorPoint(Vec2(0.5,0.5));
-	_player->setScale(0.4);
-	_player->setPosition(Vec2(x, y));
-	this->addChild(_player,100);
+	auto player = Player::create();
+	player->setAnchorPoint(Vec2(0.5,0.5));
+	player->setScale(0.4);
+	player->setPosition(Vec2(x, y));
+	this->addChild(player,100);
+	return player;
 }
 
 void MainScene::addListener()
@@ -125,7 +127,7 @@ bool MainScene::addMap()
 	log("PlayerPoint:%f,%f", x, y);
 	log("height:%f", _tileMap->getMapSize().height);
 
-	addRole(x + 360, y + 80);//将瓦片地图上的坐标转换为像素点坐标
+	_player = addRole(x + 360, y + 80);//将瓦片地图上的坐标转换为像素点坐标
 
 	_collidable = _tileMap->getLayer("collision");
 	auto item = _tileMap->getLayer("item");
@@ -159,6 +161,28 @@ bool MainScene::addMap()
 	return true;
 }
 
+void MainScene::addEnemy()
+{
+	TMXObjectGroup* group = _tileMap->getObjectGroup("object");
+	int icount = 1;
+	std::vector<Player*> enemy;
+	while (icount < 4)
+	{
+		char enemyName[10];
+		sprintf(enemyName, "enemy%d", icount);
+		ValueMap spawnPoint = group->getObject(enemyName);
+
+		auto x = spawnPoint["x"].asFloat();
+		auto y = spawnPoint["y"].asFloat();
+		log("PlayerPoint:%f,%f", x, y);
+		log("height:%f", _tileMap->getMapSize().height);
+
+		enemy.push_back(addRole(x + 360, y + 80));
+		++icount;
+	}
+
+}
+
 void MainScene::addItem()
 {
 	srand(static_cast<unsigned>(time(NULL)));
@@ -176,7 +200,7 @@ void MainScene::addItem()
 			item->setPosition(_mapCoord[i][j]);
 			item->setTag(i * 100 + j);
 			this->addChild(item, 50);
-			_mapProp[i][j] += (10 + flag);
+			_mapProp[i][j] = 10 + flag;
 			++flag;
 		}
 	}

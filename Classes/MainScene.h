@@ -23,7 +23,9 @@ public:
 
 	void setPhysicsWorld(PhysicsWorld* physicsWorld){ _world = physicsWorld; }//添加物理引擎
 
-	void addRole(float x,float y);
+	Player* addRole(float x,float y);
+
+	void addEnemy();
 
 	void addListener();
 
