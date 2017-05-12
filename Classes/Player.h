@@ -39,6 +39,7 @@ public:
 	Bomb* getBomb(){ return _bomb; }
 
 	Bomb* addBomb(int power, Vec2 pos);
+	bool eatItem(int type);
 
 private:
 	bool _canMove;//这个属性用于描述人物是否可以移动

@@ -1,6 +1,7 @@
 #include "MainScene.h"
 #include "VisibleRect.h"
 #include "Item.h"
+#include <cstdlib>
 
 Scene* MainScene::createScene()
 {
@@ -21,7 +22,7 @@ bool MainScene::init()
 	
 	addListener();
 	addMap();//里面包含添加角色的功能
-	addItem(_mapCoord[7][7]);
+	addItem();
 
 	return true;
 }
@@ -158,12 +159,27 @@ bool MainScene::addMap()
 	return true;
 }
 
-void MainScene::addItem(Vec2 pointer)
+void MainScene::addItem()
 {
-	_item = Item::create(1);
-	_item->setAnchorPoint(Point(0.5, 0.5));
-	_item->setPosition(pointer);
-	this->addChild(_item, 50);
+	srand(static_cast<unsigned>(time(NULL)));
+	auto flag = 1;
+
+	for (; flag < 4;)//对应三种道具
+	{
+		auto i = rand() % 15;
+		auto j = rand() % 15;
+
+		if (_mapProp[i][j] == 0)
+		{
+			auto item = Item::create(flag);
+			item->setAnchorPoint(Point(0.5, 0.5));
+			item->setPosition(_mapCoord[i][j]);
+			item->setTag(i * 100 + j);
+			this->addChild(item, 50);
+			_mapProp[i][j] += (10 + flag);
+			++flag;
+		}
+	}
 }
 
 void MainScene::update(float dt)
@@ -230,6 +246,18 @@ bool MainScene::checkCollidable(Point pos)
 {
 	log("%f,%f", pos.x, pos.y);
 	Point tileCoord = this->tileCoordFromPosition(pos);
+
+	if (_mapProp[tileCoord.x][tileCoord.y] > 10)
+	{
+		if (_player->eatItem(_mapProp[tileCoord.x][tileCoord.y] - 10))
+		{
+			_mapProp[tileCoord.x][tileCoord.y] = 0;
+			auto item = getChildByTag(tileCoord.x * 100 + tileCoord.y);
+			item->removeFromParentAndCleanup(true);
+			return false;
+		}
+	}
+
 	return _mapProp[tileCoord.x][tileCoord.y] != 0;
 }
 

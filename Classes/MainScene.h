@@ -31,7 +31,7 @@ public:
 
 	bool addMap();
 
-	void addItem(Vec2 pointer);
+	void addItem();
 
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
@@ -48,8 +48,6 @@ private:
 	PhysicsWorld* _world;
 
 	Player* _player;
-
-	Item* _item;
 
 	EventListenerKeyboard* _listener_key;
 };

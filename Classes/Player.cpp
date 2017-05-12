@@ -4,7 +4,7 @@
 bool Player::init()
 {
 	_canMove = true;
-	_speed = 5;
+	_speed = 3;
 	_bombMaxNum = 3;
 	_bombPresentNum = 0;
 	_bombPower = 1;
@@ -78,4 +78,23 @@ Bomb* Player::addBomb(int power, Vec2 pos)
 	CallFunc* callFunc = CallFunc::create(CC_CALLBACK_0(Player::decreaseBombNum, this));
 	this->runAction(Sequence::createWithTwoActions(delayAction, callFunc));
 	return _bomb;
+}
+
+bool Player::eatItem(int type)
+{
+	switch (type)
+	{
+	case 1:
+		this->_bombMaxNum++;
+		break;
+	case 2:
+		this->_speed++;
+		break;
+	case 3:
+		this->_bombPower++;
+		break;
+	default:
+		return false;
+	}
+	return true;
 }

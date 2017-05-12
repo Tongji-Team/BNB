@@ -11,7 +11,7 @@ bool Item::init(int type)
 		this->initWithFile("image/shoe.png");
 		break;
 	case 3:
-		this->initWithFile("image/speed.png");
+		this->initWithFile("image/power.png");
 		break;
 	default:
 		return false;
