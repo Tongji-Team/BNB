@@ -96,6 +96,7 @@ void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 {
 	//Ô¤Áô´ý²¹³ä
 	boost::thread threadBroadcast(&initBroadcast, this);
+	boost::thread threadReceiver(&initReceiver, this);
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
@@ -146,10 +147,31 @@ void Room::initBroadcast(Room* ptr)
 	while (ptr->_clientNum < 5)
 	{
 		sprintf(buf, "Message: %d, player number: %d, map: %d", icount, ptr->_clientNum, ptr->_currentMapTag);
-		log("Message: %d", icount);
 		++icount;
 		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
 		Sleep(2000);
+	}
+
+	socket.close();
+}
+
+void Room::initReceiver(Room* ptr)
+{
+	namespace ip = boost::asio::ip;
+	boost::asio::io_service io_service;
+
+	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6003));
+	ip::udp::endpoint sender_endpoint;
+
+	char buf[50];
+	while (ptr->_clientNum < 5)
+	{
+		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
+		ip::udp::endpoint client_point(sender_endpoint.address(), 6001);
+		ptr->_clientNum++;
+
+		char* sendMessage = "successfully connected!";
+		socket.send_to(boost::asio::buffer(sendMessage, strlen(sendMessage) + 1), client_point);
 	}
 
 	socket.close();
@@ -171,6 +193,16 @@ void Room::initClient(Room* ptr)
 		std::size_t bytes_transferred = socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		log("got %d bytes.", bytes_transferred);
 		log("the message: %s", buf);
+
+		if (!connected)
+		{
+			char *message = "connect";
+			ip::udp::socket sender(io_service, ip::udp::endpoint(ip::udp::v4(), 6002));
+			ip::udp::endpoint server_point(sender_endpoint.address(), 6003);
+			sender.send_to(boost::asio::buffer(message, strlen(message) + 1), server_point);
+			sender.close();
+			connected = true;
+		}
 	}
 	
 	socket.close();

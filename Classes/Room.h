@@ -23,6 +23,7 @@ public:
 
 	void static initBroadcast(Room* ptr);
 	void static initClient(Room* ptr);
+	void static initReceiver(Room* ptr);
 
 	CREATE_FUNC(Room);
 private:
