@@ -2,7 +2,11 @@
 #include"MainScene.h"
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
-#include <iostream>
+
+bool g_isClient;
+std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存放连接的客户端的地址
+boost::asio::ip::udp::endpoint g_serverEndpoint;//用于存放服务器的地址
+int g_playerID = 1;
 
 USING_NS_CC;
 
@@ -89,20 +93,29 @@ void Room::clickSelectedMenuCallBack(Ref* obj,int mapNum)
 void Room::clickStartCallBack(Ref* obj, int mapNum)
 {
     log("hello start");
+
 	auto scene = MainScene::createScene();
 	Director::getInstance()->replaceScene(scene);
+
+	_threadGroup.interrupt_all();
 }
 void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 {
 	//预留待补充
-	boost::thread threadBroadcast(&initBroadcast, this);
-	boost::thread threadReceiver(&initReceiver, this);
+	g_isClient = false;
+	g_playerID = 1;
+
+	_threadGroup.create_thread(std::bind(&initBroadcast, this));
+	_threadGroup.create_thread(std::bind(&initReceiver, this));
+	//_threadGroup.create_thread(std::bind(&initClient, this));
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 {
 	//预留待补充
-	boost::thread threadClient(&initClient, this);
+	g_isClient = true;
+
+	_threadGroup.create_thread(std::bind(&initClient, this));
 }
 void Room::addSelectedMenu()
 {
@@ -144,14 +157,13 @@ void Room::initBroadcast(Room* ptr)
 
 	char buf[50];
 	int icount = 1;
-	while (ptr->_clientNum < 5)
+	while (ptr->_clientNum < 4)
 	{
 		sprintf(buf, "Message: %d, player number: %d, map: %d", icount, ptr->_clientNum, ptr->_currentMapTag);
 		++icount;
 		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
-		Sleep(2000);
+		boost::this_thread::sleep(boost::posix_time::seconds(2));
 	}
-
 	socket.close();
 }
 
@@ -168,10 +180,15 @@ void Room::initReceiver(Room* ptr)
 	{
 		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		ip::udp::endpoint client_point(sender_endpoint.address(), 6001);
+		g_clientEndpoint.push_back(sender_endpoint);
 		ptr->_clientNum++;
 
-		char* sendMessage = "successfully connected!";
-		socket.send_to(boost::asio::buffer(sendMessage, strlen(sendMessage) + 1), client_point);
+		char sendBuf[50];
+		sprintf(sendBuf, "successfully connected! player%d", ptr->_clientNum);
+		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
+
+		boost::this_thread::sleep(boost::posix_time::seconds(2));
+		log("reveiver running");
 	}
 
 	socket.close();
@@ -193,16 +210,33 @@ void Room::initClient(Room* ptr)
 		std::size_t bytes_transferred = socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		log("got %d bytes.", bytes_transferred);
 		log("the message: %s", buf);
+		g_serverEndpoint = sender_endpoint;
+
+		std::string checkStr(buf);
+		if (checkStr.find("success") != std::string::npos)
+		{
+			if (checkStr.rfind("1") != std::string::npos)
+				g_playerID = 1;
+			else if (checkStr.rfind("2") != std::string::npos)
+				g_playerID = 2;
+			else if (checkStr.rfind("3") != std::string::npos)
+				g_playerID = 3;
+			else
+				g_playerID = 4;
+		}
 
 		if (!connected)
 		{
 			char *message = "connect";
-			ip::udp::socket sender(io_service, ip::udp::endpoint(ip::udp::v4(), 6002));
+			ip::udp::socket sender(io_service, ip::udp::endpoint(ip::udp::v4(), 6005));
 			ip::udp::endpoint server_point(sender_endpoint.address(), 6003);
 			sender.send_to(boost::asio::buffer(message, strlen(message) + 1), server_point);
 			sender.close();
 			connected = true;
 		}
+
+		boost::this_thread::sleep(boost::posix_time::seconds(2));
+		log("client running");
 	}
 	
 	socket.close();

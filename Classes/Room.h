@@ -2,6 +2,8 @@
 #define __ROOM_H__
 
 #include "cocos2d.h"
+#include <boost/asio.hpp>
+#include <boost/thread/thread.hpp>
 
 class Room : public cocos2d::Layer
 {
@@ -24,6 +26,8 @@ public:
 	void static initBroadcast(Room* ptr);
 	void static initClient(Room* ptr);
 	void static initReceiver(Room* ptr);
+
+	boost::thread_group _threadGroup;
 
 	CREATE_FUNC(Room);
 private:

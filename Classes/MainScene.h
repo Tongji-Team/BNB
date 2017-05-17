@@ -3,7 +3,7 @@
 #include "cocos2d.h"
 #include "Player.h"
 #include "Item.h"
-#include <vector>
+#include <boost/thread/thread.hpp>
 
 USING_NS_CC;
 
@@ -25,7 +25,7 @@ public:
 
 	Player* addRole(float x,float y);
 
-	void addEnemy();
+	void addPlayer();
 
 	void addListener();
 
@@ -43,15 +43,26 @@ public:
 
 	void removeBlock(Point coord);
 
+	void static initServer(MainScene*);
+	void static initClientSend(MainScene*);
+	void static initClientReceive(MainScene*);
+	void static dealMessage(char*, MainScene*);
+
 	std::vector<std::vector<Vec2>> _mapCoord;
 	std::vector<std::vector<int>> _mapProp;
+
+	std::vector<Player*> _playerGroup;
 
 private:
 	PhysicsWorld* _world;
 
 	Player* _player;
 
+	std::string _playerID;
+
 	EventListenerKeyboard* _listener_key;
+
+	boost::thread_group _threadGroup;
 };
 
 #endif
