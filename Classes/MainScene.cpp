@@ -373,33 +373,45 @@ void MainScene::initClientSend(MainScene* ptr)
 	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6106));
 	ip::udp::endpoint server_point(g_serverEndpoint.address(), 6105);
 
+	auto left = ptr->_player->_left;
+	auto right = ptr->_player->_right;
+	auto up = ptr->_player->_up;
+	auto down = ptr->_player->_down;
+
 	char buf[80];
 	while (1)
 	{
-		Vec2 pos = ptr->_player->getPosition();
-		sprintf(buf, "player%d", g_playerID);
+		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down)
+		{
+			Vec2 pos = ptr->_player->getPosition();
+			sprintf(buf, "player%d", g_playerID);
 
-		if (ptr->_player->_left == true)
-			sprintf(buf + strlen(buf), " left");
-		else
-			sprintf(buf + strlen(buf), " nleft");
-		if (ptr->_player->_right == true)
-			sprintf(buf + strlen(buf), " right");
-		else
-			sprintf(buf + strlen(buf), " nright");
-		if (ptr->_player->_up == true)
-			sprintf(buf + strlen(buf), " up");
-		else
-			sprintf(buf + strlen(buf), " nup");
-		if (ptr->_player->_down == true)
-			sprintf(buf + strlen(buf), " down");
-		else
-			sprintf(buf + strlen(buf), " ndown");
+			if (ptr->_player->_left == true)
+				sprintf(buf + strlen(buf), " left");
+			else
+				sprintf(buf + strlen(buf), " nleft");
+			if (ptr->_player->_right == true)
+				sprintf(buf + strlen(buf), " right");
+			else
+				sprintf(buf + strlen(buf), " nright");
+			if (ptr->_player->_up == true)
+				sprintf(buf + strlen(buf), " up");
+			else
+				sprintf(buf + strlen(buf), " nup");
+			if (ptr->_player->_down == true)
+				sprintf(buf + strlen(buf), " down");
+			else
+				sprintf(buf + strlen(buf), " ndown");
 
-		sprintf(buf + strlen(buf), " position %.2f,%.2f ", pos.x, pos.y);
+			sprintf(buf + strlen(buf), " position %.2f,%.2f ", pos.x, pos.y);
 
-		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), server_point);
-		log("send message");
+			socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), server_point);
+
+			left = ptr->_player->_left;
+			right = ptr->_player->_right;
+			up = ptr->_player->_up;
+			down = ptr->_player->_down;
+		}
 	}
 	socket.close();
 }
