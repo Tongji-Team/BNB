@@ -13,7 +13,7 @@ bool Player::init()
 	_up = false;
 	_down = false;
 
-	this->initWithFile("image/sample.png");
+	this->initWithFile("image/player.png");
 	return true;
 }
 

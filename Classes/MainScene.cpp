@@ -60,7 +60,7 @@ Player* MainScene::addRole(float x,float y)
 {
 	auto player = Player::create();
 	player->setAnchorPoint(Vec2(0.5,0.5));
-	player->setScale(0.4);
+	player->setScale(1);
 	player->setPosition(Vec2(x, y));
 	this->addChild(player,100);
 	return player;
@@ -127,7 +127,7 @@ Point MainScene::getBombPosition(Point coord)
 
 bool MainScene::addMap()
 {
-	_tileMap = CCTMXTiledMap::create("maps/Tiled_map.tmx");
+	_tileMap = CCTMXTiledMap::create("maps/Tiled_map1.tmx");
 	if (_tileMap == nullptr)
 	{
 		log("failed to open the map");
