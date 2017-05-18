@@ -33,6 +33,7 @@ Item* Item::create(int type)
 	else
 	{
 		delete item;
+		log("fail to addItem");
 		item = NULL;
 		return NULL;
 	}

@@ -37,7 +37,7 @@ public:
 
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
-	bool checkCollidable(Point pos);
+	bool checkCollidable(Point, Player*);
 
 	Point getBombPosition(Point coord);
 

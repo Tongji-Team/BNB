@@ -7,6 +7,7 @@ bool g_isClient;
 std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存放连接的客户端的地址
 boost::asio::ip::udp::endpoint g_serverEndpoint;//用于存放服务器的地址
 int g_playerID = 1;
+int g_mapSeed = 0;
 
 USING_NS_CC;
 
@@ -104,6 +105,7 @@ void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 	//预留待补充
 	g_isClient = false;
 	g_playerID = 1;
+	makeMapSeed();
 
 	_threadGroup.create_thread(std::bind(&initBroadcast, this));
 	_threadGroup.create_thread(std::bind(&initReceiver, this));
@@ -117,6 +119,14 @@ void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 
 	_threadGroup.create_thread(std::bind(&initClient, this));
 }
+
+void Room::makeMapSeed()
+{
+	srand(static_cast<unsigned>(time(NULL)));
+	auto seed = rand() % 100 + 1;
+	g_mapSeed = seed;
+}
+
 void Room::addSelectedMenu()
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -159,7 +169,7 @@ void Room::initBroadcast(Room* ptr)
 	int icount = 1;
 	while (ptr->_clientNum < 4)
 	{
-		sprintf(buf, "Message: %d, player number: %d, map: %d", icount, ptr->_clientNum, ptr->_currentMapTag);
+		sprintf(buf, "Message: %d, player: %d, map: %d, mapSeed: %d", icount, ptr->_clientNum, ptr->_currentMapTag,g_mapSeed);
 		++icount;
 		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
 		boost::this_thread::sleep(boost::posix_time::seconds(2));
@@ -185,6 +195,8 @@ void Room::initReceiver(Room* ptr)
 
 		char sendBuf[50];
 		sprintf(sendBuf, "successfully connected! player%d", ptr->_clientNum);
+		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
+		sprintf(sendBuf, "%d", g_mapSeed);
 		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
 
 		boost::this_thread::sleep(boost::posix_time::seconds(2));
@@ -215,14 +227,21 @@ void Room::initClient(Room* ptr)
 		std::string checkStr(buf);
 		if (checkStr.find("success") != std::string::npos)
 		{
-			if (checkStr.rfind("1") != std::string::npos)
+			if (checkStr.rfind("player1") != std::string::npos)
 				g_playerID = 1;
-			else if (checkStr.rfind("2") != std::string::npos)
+			else if (checkStr.rfind("player2") != std::string::npos)
 				g_playerID = 2;
-			else if (checkStr.rfind("3") != std::string::npos)
+			else if (checkStr.rfind("player3") != std::string::npos)
 				g_playerID = 3;
 			else
 				g_playerID = 4;
+		}
+
+		if (strtol(buf, NULL, 10) != 0)
+		{
+			g_mapSeed= static_cast<int>(strtol(buf, NULL, 10));
+			log("deal message: %d",g_mapSeed);
+			return;
 		}
 
 		if (!connected)

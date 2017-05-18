@@ -27,6 +27,8 @@ public:
 	void static initClient(Room* ptr);
 	void static initReceiver(Room* ptr);
 
+	void makeMapSeed();
+
 	boost::thread_group _threadGroup;
 
 	CREATE_FUNC(Room);

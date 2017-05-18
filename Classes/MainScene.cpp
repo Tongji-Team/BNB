@@ -9,6 +9,7 @@ extern bool g_isClient;
 extern int g_playerID;
 extern std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存放连接的客户端的地址
 extern boost::asio::ip::udp::endpoint g_serverEndpoint;//用于存放服务器的地址
+extern int g_mapSeed;
 
 Scene* MainScene::createScene()
 {
@@ -29,7 +30,6 @@ bool MainScene::init()
 	
 	addListener();
 	addMap();
-	addItem();
 	addPlayer();
 
 	if (g_isClient)//作为客户端运行
@@ -45,6 +45,8 @@ bool MainScene::init()
 		//_threadGroup.create_thread(std::bind(&initClientReceive, this));//此处是为了进行测试
 		//_threadGroup.create_thread(std::bind(&initClientSend, this));
 	}
+	addItem();
+
 	return true;
 }
 
@@ -195,10 +197,8 @@ void MainScene::addPlayer()
 
 void MainScene::addItem()
 {
-	srand(static_cast<unsigned>(time(NULL)));
-	auto flag = 1;
-
-	for (; flag < 4;)//对应三种道具
+	srand(g_mapSeed);
+	for (auto flag = 1; flag < 4;)//对应三种道具
 	{
 		auto i = rand() % 15;
 		auto j = rand() % 15;
@@ -209,8 +209,8 @@ void MainScene::addItem()
 			item->setAnchorPoint(Point(0.5, 0.5));
 			item->setPosition(_mapCoord[i][j]);
 			item->setTag(i * 100 + j);
-			this->addChild(item, 50);
-			_mapProp[i][j] = 10 + flag;
+			addChild(item, 50);
+		    _mapProp[i][j] = 10 + flag;
 			++flag;
 		}
 	}
@@ -224,7 +224,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getLeft())
 		{
 			pos = checkPlayer->walkLeft();
-			if (this->checkCollidable(pos - Vec2(16, 16)) || this->checkCollidable(pos - Vec2(16, -16)))//检查左下和左上
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
 			{
 				log("collided");
 			}
@@ -236,7 +236,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getRight())
 		{
 			pos = checkPlayer->walkRight();
-			if (this->checkCollidable(pos + Vec2(16, 16)) || this->checkCollidable(pos + Vec2(16, -16)))//检查右下和右上
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
 			{
 				log("collided");
 			}
@@ -248,7 +248,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getUp())
 		{
 			pos = checkPlayer->walkUp();
-			if (this->checkCollidable(pos + Vec2(16, 16)) || this->checkCollidable(pos + Vec2(-16, 16)))//检查左上和右上
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
 			{
 				log("collided");
 			}
@@ -260,7 +260,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getDown())
 		{
 			pos = checkPlayer->walkDown();
-			if (this->checkCollidable(pos - Vec2(16, 16)) || this->checkCollidable(pos - Vec2(-16, 16)))//检查左下和右下
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
 			{
 				log("collided");
 			}
@@ -279,14 +279,14 @@ Point MainScene::tileCoordFromPosition(Point pos)
 	return Point(x, y);
 }
 
-bool MainScene::checkCollidable(Point pos)
+bool MainScene::checkCollidable(Point pos, Player* ptr)
 {
 	log("%f,%f", pos.x, pos.y);
 	Point tileCoord = this->tileCoordFromPosition(pos);
 
 	if (_mapProp[tileCoord.x][tileCoord.y] > 10)
 	{
-		if (_player->eatItem(_mapProp[tileCoord.x][tileCoord.y] - 10))
+		if (ptr->eatItem(_mapProp[tileCoord.x][tileCoord.y] - 10))
 		{
 			_mapProp[tileCoord.x][tileCoord.y] = 0;
 			auto item = getChildByTag(tileCoord.x * 100 + tileCoord.y);
@@ -306,32 +306,32 @@ void MainScene::removeBlock(Point coord)
 
 void MainScene::dealMessage(char* Buf, MainScene*ptr)
 {
-	/*示例消息：player2 up,left,ndown,nright position(123.45,123.45)*/
+	/*示例消息：p2 u l pos 123.45,123.45*/
 	std::string checkStr(Buf);
 	Player* checkPlayer;
 
-	if (checkStr.find("player1") != std::string::npos)
+	if (checkStr.find("p1") != std::string::npos)
 		checkPlayer = ptr->_playerGroup[0];
-	else if (checkStr.find("player2") != std::string::npos)
+	else if (checkStr.find("p2") != std::string::npos)
 		checkPlayer = ptr->_playerGroup[1];
-	else if (checkStr.find("player3") != std::string::npos)
+	else if (checkStr.find("p3") != std::string::npos)
 		checkPlayer = ptr->_playerGroup[2];
 	else
 		checkPlayer = ptr->_playerGroup[3];
 
-	if (checkStr.find("nup") == std::string::npos)
+	if (checkStr.find("u") != std::string::npos)
 		checkPlayer->_up = true;
 	else
 		checkPlayer->_up = false;
-	if (checkStr.find("ndown") == std::string::npos)
+	if (checkStr.find("d") != std::string::npos)
 		checkPlayer->_down = true;
 	else
 		checkPlayer->_down = false;
-	if (checkStr.find("nleft") == std::string::npos)
+	if (checkStr.find("l") != std::string::npos)
 		checkPlayer->_left = true;
 	else
 		checkPlayer->_left = false;
-	if (checkStr.find("nright") == std::string::npos)
+	if (checkStr.find("r") != std::string::npos)
 		checkPlayer->_right = true;
 	else
 		checkPlayer->_right = false;
@@ -350,7 +350,7 @@ void MainScene::initServer(MainScene* ptr)
 	while (1)
 	{
 		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
-		log("receive message");
+		log("receive message: %s",buf);
 		dealMessage(buf, ptr);
 
 		for (auto it : g_clientEndpoint)
@@ -384,26 +384,18 @@ void MainScene::initClientSend(MainScene* ptr)
 		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down)
 		{
 			Vec2 pos = ptr->_player->getPosition();
-			sprintf(buf, "player%d", g_playerID);
+			sprintf(buf, "p%d", g_playerID);
 
 			if (ptr->_player->_left == true)
-				sprintf(buf + strlen(buf), " left");
-			else
-				sprintf(buf + strlen(buf), " nleft");
+				sprintf(buf + strlen(buf), " l");
 			if (ptr->_player->_right == true)
-				sprintf(buf + strlen(buf), " right");
-			else
-				sprintf(buf + strlen(buf), " nright");
+				sprintf(buf + strlen(buf), " r");
 			if (ptr->_player->_up == true)
-				sprintf(buf + strlen(buf), " up");
-			else
-				sprintf(buf + strlen(buf), " nup");
+				sprintf(buf + strlen(buf), " u");
 			if (ptr->_player->_down == true)
-				sprintf(buf + strlen(buf), " down");
-			else
-				sprintf(buf + strlen(buf), " ndown");
+				sprintf(buf + strlen(buf), " d");
 
-			sprintf(buf + strlen(buf), " position %.2f,%.2f ", pos.x, pos.y);
+			sprintf(buf + strlen(buf), " pos %.2f,%.2f ", pos.x, pos.y);
 
 			socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), server_point);
 
