@@ -43,7 +43,7 @@ bool MainScene::init()
 		log("I am a server");
 		_threadGroup.create_thread(std::bind(&initServer, this));
 		//_threadGroup.create_thread(std::bind(&initClientReceive, this));//此处是为了进行测试
-		//_threadGroup.create_thread(std::bind(&initClientSend, this));
+		_threadGroup.create_thread(std::bind(&initClientSend, this));
 	}
 	addItem();
 
@@ -127,7 +127,7 @@ Point MainScene::getBombPosition(Point coord)
 
 bool MainScene::addMap()
 {
-	_tileMap = CCTMXTiledMap::create("maps/Tiled_map1.tmx");
+	_tileMap = CCTMXTiledMap::create("maps/Tiled_map.tmx");
 	if (_tileMap == nullptr)
 	{
 		log("failed to open the map");
@@ -355,10 +355,10 @@ void MainScene::initServer(MainScene* ptr)
 
 		for (auto it : g_clientEndpoint)
 		{
-			if (it != sender_endpoint)//此处无效果
+			if (it.address() != sender_endpoint.address())//此处无效果
 			{
 				ip::udp::endpoint client_point(it.address(), 6104);
-				socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), sender_endpoint);
+				socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), client_point);
 			}
 		}
 	}

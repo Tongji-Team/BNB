@@ -39,7 +39,7 @@ private:
 	std::vector<std::string> _mapNames;
 	cocos2d::Sprite* _mapWindow;
 	int _currentMapTag = 0;
-	int _clientNum = 1;
+	int _clientNum = 0;
 };
 
 #endif 

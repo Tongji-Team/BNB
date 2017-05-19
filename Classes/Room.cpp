@@ -8,6 +8,7 @@ std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//ÓÃÓÚ´æ·ÅÁ¬½ÓµÄ¿Í»
 boost::asio::ip::udp::endpoint g_serverEndpoint;//ÓÃÓÚ´æ·Å·şÎñÆ÷µÄµØÖ·
 int g_playerID = 1;
 int g_mapSeed = 0;
+int g_mapName = 0;
 
 USING_NS_CC;
 
@@ -109,7 +110,7 @@ void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 
 	_threadGroup.create_thread(std::bind(&initBroadcast, this));
 	_threadGroup.create_thread(std::bind(&initReceiver, this));
-	//_threadGroup.create_thread(std::bind(&initClient, this));
+	_threadGroup.create_thread(std::bind(&initClient, this));
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
