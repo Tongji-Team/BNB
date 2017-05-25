@@ -2,6 +2,11 @@
 #include"MainScene.h"
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
+#include "cocostudio/CocoStudio.h"
+using namespace cocostudio;
+#include "ui/cocosGUI.h"
+
+USING_NS_CC;
 
 bool g_isClient;
 std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存放连接的客户端的地址
@@ -10,7 +15,7 @@ int g_playerID = 1;
 int g_mapSeed = 0;
 int g_mapName = 0;
 
-USING_NS_CC;
+
 
 Scene* Room::createScene()
 {
@@ -87,7 +92,7 @@ void Room::clickSelectedMenuCallBack(Ref* obj,int mapNum)
 {
 	log("selectedMenu clicked");
 	_currentMapTag = mapNum;
-	_selectedMap->setString(_mapNames[_currentMapTag]);
+	_selectedMap->setString(_mapNames[_currentMapTag - 1]);
 	changeMapWindow();
 	removeSelectedMenu();
 }
@@ -111,6 +116,8 @@ void Room::clickCreatRoomCallBack(Ref* obj,int mapNum)
 	_threadGroup.create_thread(std::bind(&initBroadcast, this));
 	_threadGroup.create_thread(std::bind(&initReceiver, this));
 	_threadGroup.create_thread(std::bind(&initClient, this));
+
+	addRomeList();
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
@@ -119,8 +126,30 @@ void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 	g_isClient = true;
 
 	_threadGroup.create_thread(std::bind(&initClient, this));
+	addRomeList();
 }
 
+void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
+{
+	//信息交互待补充
+	log("click room list text");
+
+	for (int i = 9; i < 15; ++i)
+	{
+		auto listText = dynamic_cast<ui::Text*>(list->getChildByTag(i));
+	
+		if (i == tag)
+		{
+			listText->setFontSize(30);
+			listText->setTextColor(Color4B::BLACK);
+		}
+		else
+		{
+			listText->setFontSize(20);
+			listText->setTextColor(Color4B::WHITE);
+		}
+	}
+}
 void Room::makeMapSeed()
 {
 	srand(static_cast<unsigned>(time(NULL)));
@@ -132,9 +161,9 @@ void Room::addSelectedMenu()
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto mapLabel1 = Label::createWithTTF("map1", "fonts/Marker Felt.ttf", 50);
-	auto mapItem1 = MenuItemLabel::create(mapLabel1,CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 0));
+	auto mapItem1 = MenuItemLabel::create(mapLabel1,CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 1));
 	auto mapLabel2 = Label::createWithTTF("map2", "fonts/Marker Felt.ttf", 50);
-	auto mapItem2 = MenuItemLabel::create(mapLabel2, CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 1));
+	auto mapItem2 = MenuItemLabel::create(mapLabel2, CC_CALLBACK_1(Room::clickSelectedMenuCallBack, this, 2));
 
 	_selectedMenu = Menu::create(mapItem1, mapItem2,nullptr);
 	_selectedMenu->alignItemsVertically();
@@ -150,11 +179,39 @@ void Room::removeSelectedMenu()
 void Room::changeMapWindow()
 {
 	removeChild(_mapWindow);
-	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag + 1);
+	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag);
 	_mapWindow = Sprite::create(mapName->getCString());
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	_mapWindow->setPosition(visibleSize.width*0.25, visibleSize.height / 2);
 	addChild(_mapWindow);
+}
+
+void Room::addRomeList()
+{
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+
+	auto node = CSLoader::getInstance()->createNode("cocosstudio/Layer.csb");
+
+	auto list = dynamic_cast<ui::ListView*>(node->getChildByName("ListView_1"));
+
+	auto listImage = dynamic_cast<ui::ImageView*>(node->getChildByName("backImage"));
+	listImage->loadTexture("image/bg-st.png");
+
+	auto startButton = dynamic_cast<ui::Button*>(node->getChildByName("startButton"));
+	startButton->addTouchEventListener(CC_CALLBACK_1(Room::clickStartCallBack, this, _currentMapTag));
+	startButton->setTitleFontSize(30);
+	for (int tag = 9; tag < 15; ++tag)
+	{
+		auto listText = dynamic_cast<ui::Text*>(list->getChildByTag(tag));
+		listText->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListTextCallBack, this, list, tag));
+	}
+
+	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag);
+	auto mapWindow = Sprite::create(mapName->getCString());
+	mapWindow->setPosition(visibleSize.width*0.7,visibleSize.height*0.6);
+	node->addChild(mapWindow);
+
+	addChild(node, 1);
 }
 
 void Room::initBroadcast(Room* ptr)

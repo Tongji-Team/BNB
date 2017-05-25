@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
+#include "ui/cocosGUI.h"
 
 class Room : public cocos2d::Layer
 {
@@ -17,11 +18,13 @@ public:
 	void clickCreatRoomCallBack(Ref* obj,int mapNum);
 	void clickFindRoomCallBack(Ref* obj,int mapNum);
 	void clickStartCallBack(Ref* obj, int mapNum);
+	void clickRoomListTextCallBack(Ref* obj, cocos2d::ui::ListView* list,int tag);
 
 	void addSelectedMenu();
 	void removeSelectedMenu();
 	void addMapNames();
 	void changeMapWindow();
+	void addRomeList();
 
 	void static initBroadcast(Room* ptr);
 	void static initClient(Room* ptr);
