@@ -42,7 +42,7 @@ bool MainScene::init()
 	{
 		log("I am a server");
 		_threadGroup.create_thread(std::bind(&initServer, this));
-		//_threadGroup.create_thread(std::bind(&initClientReceive, this));//此处是为了进行测试
+		_threadGroup.create_thread(std::bind(&initClientReceive, this));//此处是为了进行测试
 		_threadGroup.create_thread(std::bind(&initClientSend, this));
 	}
 	addItem();
@@ -90,9 +90,10 @@ void MainScene::addListener()
 					auto bomb = _player->getBomb();
 					bomb->setScale(0.4);
 					this->addChild(bomb);
+					auto pos = tileCoordFromPosition(bomb->getPosition());
 					DelayTime* delayAction = DelayTime::create(2.0f);
-					CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, tileCoordFromPosition(bomb->getPosition())));
-					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb));
+					CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
+					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, _mapProp, pos));
 					this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
 				}
 				break;
@@ -151,7 +152,6 @@ bool MainScene::addMap()
 		for (int j = 0; j < 15; ++j)
 		{
 			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
-			log("%f,%f", map[j].x, map[j].y);
 
 			auto tileGidCol = _collidable->getTileGIDAt(Point(i,j));
 			auto tileGidIte = item->getTileGIDAt(Point(i, j));
@@ -185,8 +185,7 @@ void MainScene::addPlayer()
 		auto x = spawnPoint["x"].asFloat();
 		auto y = spawnPoint["y"].asFloat();
 		log("PlayerPoint:%f,%f", x, y);
-		log("height:%f", _tileMap->getMapSize().height);
-
+		
 		_playerGroup.push_back(addRole(x + 360, y + 80));
 		++icount;
 	}
@@ -281,7 +280,6 @@ Point MainScene::tileCoordFromPosition(Point pos)
 
 bool MainScene::checkCollidable(Point pos, Player* ptr)
 {
-	log("%f,%f", pos.x, pos.y);
 	Point tileCoord = this->tileCoordFromPosition(pos);
 
 	if (_mapProp[tileCoord.x][tileCoord.y] > 10)
@@ -351,7 +349,6 @@ void MainScene::initServer(MainScene* ptr)
 	{
 		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		log("receive message: %s",buf);
-		dealMessage(buf, ptr);
 
 		for (auto it : g_clientEndpoint)
 		{

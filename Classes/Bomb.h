@@ -11,7 +11,7 @@ public:
 
 	static Bomb* create(int power);
 
-	void boom();
+	void boom(std::vector<std::vector<int>>& mapProp, Point coordPos);
 
 private:
 	int _bombPower;
