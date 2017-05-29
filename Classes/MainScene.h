@@ -9,9 +9,6 @@ USING_NS_CC;
 
 class MainScene :public cocos2d::Layer
 {
-	cocos2d::CCTMXTiledMap *_tileMap;
-	cocos2d::TMXLayer* _collidable;//保存碰撞层对象
-
 public:
 	static cocos2d::Scene* createScene();
 
@@ -47,6 +44,9 @@ public:
 	void static initClientSend(MainScene*);
 	void static initClientReceive(MainScene*);
 	void static dealMessage(char*, MainScene*);
+
+	cocos2d::CCTMXTiledMap *_tileMap;
+	cocos2d::TMXLayer* _item;//保存道具层对象
 
 	std::vector<std::vector<Vec2>> _mapCoord;
 	std::vector<std::vector<int>> _mapProp;

@@ -4,6 +4,8 @@
 
 USING_NS_CC;
 
+class MainScene;
+
 class Bomb :public Sprite
 {
 public:
@@ -11,7 +13,7 @@ public:
 
 	static Bomb* create(int power);
 
-	void boom(std::vector<std::vector<int>>& mapProp, Point coordPos);
+	void boom(MainScene* ptr, Point coordPos);
 
 private:
 	int _bombPower;

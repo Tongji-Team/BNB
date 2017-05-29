@@ -63,6 +63,7 @@ Player* MainScene::addRole(float x,float y)
 	player->setScale(1);
 	player->setPosition(Vec2(x, y));
 	this->addChild(player,100);
+	player->setGlobalZOrder(100);
 	return player;
 }
 
@@ -93,7 +94,7 @@ void MainScene::addListener()
 					auto pos = tileCoordFromPosition(bomb->getPosition());
 					DelayTime* delayAction = DelayTime::create(2.0f);
 					CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
-					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, _mapProp, pos));
+					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, this, pos));
 					this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
 				}
 				break;
@@ -141,8 +142,9 @@ bool MainScene::addMap()
 	log("center:%f,%f", VisibleRect::center().x, VisibleRect::center().y);
 	addChild(_tileMap,0);
 
-	_collidable = _tileMap->getLayer("collision");
-	auto item = _tileMap->getLayer("item");
+	auto collidable = _tileMap->getLayer("collision");
+	_item = _tileMap->getLayer("item");
+	_item->setGlobalZOrder(50);
 	auto road = _tileMap->getLayer("road");
 
 	for (int i = 0; i < 15; ++i)
@@ -153,14 +155,14 @@ bool MainScene::addMap()
 		{
 			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
 
-			auto tileGidCol = _collidable->getTileGIDAt(Point(i,j));
-			auto tileGidIte = item->getTileGIDAt(Point(i, j));
+			auto tileGidCol = collidable->getTileGIDAt(Point(i,j));
+			auto tileGidIte = _item->getTileGIDAt(Point(i, j));
 
 			if (tileGidCol > 0)
 				prop.push_back(1);//1代表该块为碰撞块
 
 			else if (tileGidIte > 0)
-				prop.push_back(2);//2代表该块为道具块
+				prop.push_back(4);//4代表该块为道具块
 
 			else
 				prop.push_back(0);//0代表无障碍物
@@ -202,14 +204,14 @@ void MainScene::addItem()
 		auto i = rand() % 15;
 		auto j = rand() % 15;
 
-		if (_mapProp[i][j] == 0)
+		if (_mapProp[i][j] == 4)
 		{
 			auto item = Item::create(flag);
 			item->setAnchorPoint(Point(0.5, 0.5));
 			item->setPosition(_mapCoord[i][j]);
 			item->setTag(i * 100 + j);
-			addChild(item, 50);
-		    _mapProp[i][j] = 10 + flag;
+			addChild(item, 0);
+		    _mapProp[i][j] += (10 + flag);
 			++flag;
 		}
 	}
@@ -282,7 +284,7 @@ bool MainScene::checkCollidable(Point pos, Player* ptr)
 {
 	Point tileCoord = this->tileCoordFromPosition(pos);
 
-	if (_mapProp[tileCoord.x][tileCoord.y] > 10)
+	if (_mapProp[tileCoord.x][tileCoord.y] > 10 && _mapProp[tileCoord.x][tileCoord.y] < 14)
 	{
 		if (ptr->eatItem(_mapProp[tileCoord.x][tileCoord.y] - 10))
 		{

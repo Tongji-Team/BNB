@@ -1,3 +1,4 @@
+#include "MainScene.h"
 #include "Bomb.h"
 
 bool Bomb::init(int power)
@@ -24,7 +25,7 @@ Bomb* Bomb::create(int power)
 	}
 }
 
-void Bomb::boom(std::vector<std::vector<int>>& mapProp, Point coordPos)
+void Bomb::boom(MainScene* ptr, Point coordPos)
 {
 	auto count = this->_bombPower;
 	bool up = true, down = true, left = true, right = true;
@@ -32,60 +33,77 @@ void Bomb::boom(std::vector<std::vector<int>>& mapProp, Point coordPos)
 	{
 		if (up)
 		{
-			if (mapProp[coordPos.x][coordPos.y - i] != 1)
+			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
 				auto sprite1 = Sprite::create("image/sample.png");
 				sprite1->setAnchorPoint(Vec2(0, 0));
 				sprite1->setPosition(0, 96 * i);
 				this->addChild(sprite1, 100);
 
-				if (mapProp[coordPos.x][coordPos.y - i] == 2)
+				if (ptr->_mapProp[coordPos.x][coordPos.y - i] == 4 || ptr->_mapProp[coordPos.x][coordPos.y - i] > 13)
+				{
+					ptr->_item->setTileGID(0, Point(coordPos.x, coordPos.y - i));
+					ptr->_mapProp[coordPos.x][coordPos.y - i] -= 4;
+					log("(%f,%f): %d", coordPos.x, coordPos.y - i, ptr->_mapProp[coordPos.x][coordPos.y - i]);
 					up = false;
+				}
 			}
 			else
 				up = false;
 		}
 		if (down)
 		{
-			if (mapProp[coordPos.x][coordPos.y + i] != 1)
+			if (ptr->_mapProp[coordPos.x][coordPos.y + i] != 1)
 			{
 				auto sprite2 = Sprite::create("image/sample.png");
 				sprite2->setAnchorPoint(Vec2(0, 0));
 				sprite2->setPosition(0, -96 * i);
 				this->addChild(sprite2, 100);
 
-				if (mapProp[coordPos.x][coordPos.y + i] == 2)
+				if (ptr->_mapProp[coordPos.x][coordPos.y + i] == 4 || ptr->_mapProp[coordPos.x][coordPos.y + i] > 13)
+				{
+					ptr->_item->setTileGID(0, Point(coordPos.x, coordPos.y + i));
+					ptr->_mapProp[coordPos.x][coordPos.y + i] -= 4;
 					down = false;
+				}
 			}
 			else
 				down = false;
 		}
 		if (right)
 		{
-			if (mapProp[coordPos.x + i][coordPos.y] != 1)
+			if (ptr->_mapProp[coordPos.x + i][coordPos.y] != 1)
 			{
 				auto sprite3 = Sprite::create("image/sample.png");
 				sprite3->setAnchorPoint(Vec2(0, 0));
 				sprite3->setPosition(96 * i, 0);
 				this->addChild(sprite3, 100);
 
-				if (mapProp[coordPos.x + i][coordPos.y] == 2)
+				if (ptr->_mapProp[coordPos.x + i][coordPos.y] == 4 || ptr->_mapProp[coordPos.x + i][coordPos.y] > 13)
+				{
+					ptr->_item->setTileGID(0, Point(coordPos.x + i, coordPos.y));
+					ptr->_mapProp[coordPos.x + i][coordPos.y] -= 4;
 					right = false;
+				}
 			}
 			else
 				right = false;
 		}
 		if (left)
 		{
-			if (mapProp[coordPos.x - i][coordPos.y] != 1)
+			if (ptr->_mapProp[coordPos.x - i][coordPos.y] != 1)
 			{
 				auto sprite4 = Sprite::create("image/sample.png");
 				sprite4->setAnchorPoint(Vec2(0, 0));
 				sprite4->setPosition(-96 * i, 0);
 				this->addChild(sprite4, 100);
 
-				if (mapProp[coordPos.x - i][coordPos.y] == 2)
+				if (ptr->_mapProp[coordPos.x - i][coordPos.y] == 4 || ptr->_mapProp[coordPos.x - i][coordPos.y] > 13)
+				{
+					ptr->_item->setTileGID(0, Point(coordPos.x - i, coordPos.y));
+					ptr->_mapProp[coordPos.x - i][coordPos.y] -= 4;
 					left = false;
+				}
 			}
 			else
 				left = false;
