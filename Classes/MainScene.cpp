@@ -4,11 +4,13 @@
 #include <cstdlib>
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
+#include "SimpleAudioEngine.h"
+using namespace CocosDenshion;
 
 extern bool g_isClient;
 extern int g_playerID;
-extern std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//ÓÃÓÚ´æ·ÅÁ¬½ÓµÄ¿Í»§¶ËµÄµØÖ·
-extern boost::asio::ip::udp::endpoint g_serverEndpoint;//ÓÃÓÚ´æ·Å·şÎñÆ÷µÄµØÖ·
+extern std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//ç”¨äºå­˜æ”¾è¿æ¥çš„å®¢æˆ·ç«¯çš„åœ°å€
+extern boost::asio::ip::udp::endpoint g_serverEndpoint;//ç”¨äºå­˜æ”¾æœåŠ¡å™¨çš„åœ°å€
 extern int g_mapSeed;
 
 Scene* MainScene::createScene()
@@ -32,17 +34,17 @@ bool MainScene::init()
 	addMap();
 	addPlayer();
 
-	if (g_isClient)//×÷Îª¿Í»§¶ËÔËĞĞ
+	if (g_isClient)//ä½œä¸ºå®¢æˆ·ç«¯è¿è¡Œ
 	{
 		log("I am a client");
 		_threadGroup.create_thread(std::bind(&initClientSend, this));
 		_threadGroup.create_thread(std::bind(&initClientReceive, this));
 	}
-	else//×÷Îª¿Í»§¶ËºÍ·şÎñ¶ËÔËĞĞ
+	else//ä½œä¸ºå®¢æˆ·ç«¯å’ŒæœåŠ¡ç«¯è¿è¡Œ
 	{
 		log("I am a server");
 		_threadGroup.create_thread(std::bind(&initServer, this));
-		_threadGroup.create_thread(std::bind(&initClientReceive, this));//´Ë´¦ÊÇÎªÁË½øĞĞ²âÊÔ
+		_threadGroup.create_thread(std::bind(&initClientReceive, this));//æ­¤å¤„æ˜¯ä¸ºäº†è¿›è¡Œæµ‹è¯•
 		_threadGroup.create_thread(std::bind(&initClientSend, this));
 	}
 	addItem();
@@ -54,6 +56,7 @@ void MainScene::onEnter()
 {
 	Layer::onEnter();
 	_world->setGravity(Vec2(0, 0));
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/play.wav", true);
 }
 
 Player* MainScene::addRole(float x,float y)
@@ -159,13 +162,13 @@ bool MainScene::addMap()
 			auto tileGidIte = _item->getTileGIDAt(Point(i, j));
 
 			if (tileGidCol > 0)
-				prop.push_back(1);//1´ú±í¸Ã¿éÎªÅö×²¿é
+				prop.push_back(1);//1ä»£è¡¨è¯¥å—ä¸ºç¢°æ’å—
 
 			else if (tileGidIte > 0)
-				prop.push_back(4);//4´ú±í¸Ã¿éÎªµÀ¾ß¿é
+				prop.push_back(4);//4ä»£è¡¨è¯¥å—ä¸ºé“å…·å—
 
 			else
-				prop.push_back(0);//0´ú±íÎŞÕÏ°­Îï
+				prop.push_back(0);//0ä»£è¡¨æ— éšœç¢ç‰©
 		}
 		_mapCoord.push_back(map);
 		_mapProp.push_back(prop);
@@ -199,7 +202,7 @@ void MainScene::addPlayer()
 void MainScene::addItem()
 {
 	srand(g_mapSeed);
-	for (auto flag = 1; flag < 4;)//¶ÔÓ¦ÈıÖÖµÀ¾ß
+	for (auto flag = 1; flag < 4;)//å¯¹åº”ä¸‰ç§é“å…·
 	{
 		auto i = rand() % 15;
 		auto j = rand() % 15;
@@ -215,6 +218,7 @@ void MainScene::addItem()
 			++flag;
 		}
 	}
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/get.wav", false);
 }
 
 void MainScene::update(float dt)
@@ -225,7 +229,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getLeft())
 		{
 			pos = checkPlayer->walkLeft();
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//¼ì²é×óÏÂºÍ×óÉÏ
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//æ£€æŸ¥å·¦ä¸‹å’Œå·¦ä¸Š
 			{
 				log("collided");
 			}
@@ -237,7 +241,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getRight())
 		{
 			pos = checkPlayer->walkRight();
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//¼ì²éÓÒÏÂºÍÓÒÉÏ
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//æ£€æŸ¥å³ä¸‹å’Œå³ä¸Š
 			{
 				log("collided");
 			}
@@ -249,7 +253,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getUp())
 		{
 			pos = checkPlayer->walkUp();
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//¼ì²é×óÉÏºÍÓÒÉÏ
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//æ£€æŸ¥å·¦ä¸Šå’Œå³ä¸Š
 			{
 				log("collided");
 			}
@@ -261,7 +265,7 @@ void MainScene::update(float dt)
 		if (checkPlayer->getDown())
 		{
 			pos = checkPlayer->walkDown();
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//¼ì²é×óÏÂºÍÓÒÏÂ
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//æ£€æŸ¥å·¦ä¸‹å’Œå³ä¸‹
 			{
 				log("collided");
 			}
@@ -306,7 +310,7 @@ void MainScene::removeBlock(Point coord)
 
 void MainScene::dealMessage(char* Buf, MainScene*ptr)
 {
-	/*Ê¾ÀıÏûÏ¢£ºp2 u l pos 123.45,123.45*/
+	/*ç¤ºä¾‹æ¶ˆæ¯ï¼šp2 u l pos 123.45,123.45*/
 	std::string checkStr(Buf);
 	Player* checkPlayer;
 
@@ -354,7 +358,7 @@ void MainScene::initServer(MainScene* ptr)
 
 		for (auto it : g_clientEndpoint)
 		{
-			if (it.address() != sender_endpoint.address())//´Ë´¦ÎŞĞ§¹û
+			if (it.address() != sender_endpoint.address())//æ­¤å¤„æ— æ•ˆæœ
 			{
 				ip::udp::endpoint client_point(it.address(), 6104);
 				socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), client_point);
