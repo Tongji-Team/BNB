@@ -3,6 +3,8 @@
 #include "MainScene.h"
 #include"SignIn.h"
 #include"Room.h"
+#include "SimpleAudioEngine.h"
+using namespace CocosDenshion;
 
 bool StartScene::init()
 {
@@ -37,6 +39,8 @@ bool StartScene::init()
 	menu->setPosition(VisibleRect::center());
 	this->addChild(menu);
 
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/music.wav", true);
+	
 	return true;
 }
 
@@ -53,6 +57,7 @@ void StartScene::onStart(Ref* obj)
 	log("hello start");
 	auto scene = MainScene::createScene();
 	Director::getInstance()->replaceScene(scene);
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/readygo.wav", false);
 }
 
 void StartScene::onSign(Ref* obj)
