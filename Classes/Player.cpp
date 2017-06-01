@@ -12,6 +12,7 @@ bool Player::init()
 	_right = false;
 	_up = false;
 	_down = false;
+	_addBomb = false;
 
 	this->initWithFile("image/player.png");
 	return true;

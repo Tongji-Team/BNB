@@ -47,6 +47,8 @@ public:
 	bool _up;
 	bool _down;
 
+	bool _addBomb;
+
 private:
 	bool _canMove;//这个属性用于描述人物是否可以移动
 	int _speed;//用于描述人物的移动速度

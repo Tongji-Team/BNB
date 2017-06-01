@@ -56,7 +56,7 @@ void MainScene::onEnter()
 {
 	Layer::onEnter();
 	_world->setGravity(Vec2(0, 0));
-	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/play.wav", true);
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/music.wav", true);
 }
 
 Player* MainScene::addRole(float x,float y)
@@ -90,15 +90,7 @@ void MainScene::addListener()
 				}
 				else
 				{
-					_player->addBomb(_player->getBombPower(), getBombPosition(tileCoordFromPosition(_player->getPosition())));
-					auto bomb = _player->getBomb();
-					bomb->setScale(0.4);
-					this->addChild(bomb);
-					auto pos = tileCoordFromPosition(bomb->getPosition());
-					DelayTime* delayAction = DelayTime::create(2.0f);
-					CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
-					CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, this, pos));
-					this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
+					placeBomb(_player);
 				}
 				break;
 		}
@@ -218,7 +210,20 @@ void MainScene::addItem()
 			++flag;
 		}
 	}
-	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/get.wav", false);
+}
+
+void MainScene::placeBomb(Player* player)
+{
+	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
+	auto bomb = player->getBomb();
+	bomb->setScale(0.4);
+	this->addChild(bomb);
+	player->_addBomb = true;
+	auto pos = tileCoordFromPosition(bomb->getPosition());
+	DelayTime* delayAction = DelayTime::create(2.0f);
+	CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
+	CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, this, pos));
+	this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
 }
 
 void MainScene::update(float dt)
@@ -295,6 +300,7 @@ bool MainScene::checkCollidable(Point pos, Player* ptr)
 			_mapProp[tileCoord.x][tileCoord.y] = 0;
 			auto item = getChildByTag(tileCoord.x * 100 + tileCoord.y);
 			item->removeFromParentAndCleanup(true);
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/get.wav", false);
 			return false;
 		}
 	}
@@ -339,6 +345,8 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		checkPlayer->_right = true;
 	else
 		checkPlayer->_right = false;
+	if (checkStr.find("b") != std::string::npos)//add bomb
+		ptr->placeBomb(checkPlayer);
 
 }
 
@@ -358,7 +366,7 @@ void MainScene::initServer(MainScene* ptr)
 
 		for (auto it : g_clientEndpoint)
 		{
-			if (it.address() != sender_endpoint.address())//此处无效果
+			if (it.address() != sender_endpoint.address())
 			{
 				ip::udp::endpoint client_point(it.address(), 6104);
 				socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), client_point);
@@ -384,19 +392,25 @@ void MainScene::initClientSend(MainScene* ptr)
 	char buf[80];
 	while (1)
 	{
-		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down)
+		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down
+			|| ptr->_player->_addBomb)
 		{
 			Vec2 pos = ptr->_player->getPosition();
 			sprintf(buf, "p%d", g_playerID);
 
-			if (ptr->_player->_left == true)
+			if (ptr->_player->_left)
 				sprintf(buf + strlen(buf), " l");
-			if (ptr->_player->_right == true)
+			if (ptr->_player->_right)
 				sprintf(buf + strlen(buf), " r");
-			if (ptr->_player->_up == true)
+			if (ptr->_player->_up)
 				sprintf(buf + strlen(buf), " u");
-			if (ptr->_player->_down == true)
+			if (ptr->_player->_down)
 				sprintf(buf + strlen(buf), " d");
+			if (ptr->_player->_addBomb)
+			{
+				sprintf(buf + strlen(buf), " b");
+				ptr->_player->_addBomb = false;
+			}
 
 			sprintf(buf + strlen(buf), " pos %.2f,%.2f ", pos.x, pos.y);
 

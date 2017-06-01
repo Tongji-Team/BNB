@@ -45,6 +45,8 @@ public:
 	void static initClientReceive(MainScene*);
 	void static dealMessage(char*, MainScene*);
 
+	void placeBomb(Player*);
+
 	cocos2d::CCTMXTiledMap *_tileMap;
 	cocos2d::TMXLayer* _item;//保存道具层对象
 
