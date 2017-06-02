@@ -35,6 +35,7 @@ public:
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
 	bool checkCollidable(Point, Player*);
+	bool onContactBegin(const PhysicsContact& contact);
 
 	Point getBombPosition(Point coord);
 
@@ -53,7 +54,7 @@ public:
 	std::vector<std::vector<Vec2>> _mapCoord;
 	std::vector<std::vector<int>> _mapProp;
 
-	std::vector<Player*> _playerGroup;
+	Vector<Player*> _playerGroup;
 
 private:
 	PhysicsWorld* _world;
@@ -63,6 +64,7 @@ private:
 	std::string _playerID;
 
 	EventListenerKeyboard* _listener_key;
+	EventListenerPhysicsContact* _listener_contact;
 
 	boost::thread_group _threadGroup;
 };

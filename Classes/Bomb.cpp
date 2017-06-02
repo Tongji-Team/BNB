@@ -35,10 +35,16 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
-				auto sprite1 = Sprite::create("image/sample.png");
-				sprite1->setAnchorPoint(Vec2(0, 0));
-				sprite1->setPosition(0, 96 * i);
-				this->addChild(sprite1, 100);
+				auto sprite = Sprite::create("image/sample.png");//Õ¨µ¯Ð§¹û
+				sprite->setAnchorPoint(Vec2(0, 0));
+				sprite->setPosition(0, 96 * i);
+				this->addChild(sprite, 100);
+				sprite->setName("bomb");
+				auto size = sprite->getContentSize();
+				auto body = PhysicsBody::createBox(Size(size.width, size.height));
+				body->setCollisionBitmask(0);
+				body->setContactTestBitmask(1);
+				sprite->setPhysicsBody(body);
 
 				if (ptr->_mapProp[coordPos.x][coordPos.y - i] == 4 || ptr->_mapProp[coordPos.x][coordPos.y - i] > 13)
 				{
@@ -55,10 +61,16 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y + i] != 1)
 			{
-				auto sprite2 = Sprite::create("image/sample.png");
-				sprite2->setAnchorPoint(Vec2(0, 0));
-				sprite2->setPosition(0, -96 * i);
-				this->addChild(sprite2, 100);
+				auto sprite = Sprite::create("image/sample.png");
+				sprite->setAnchorPoint(Vec2(0, 0));
+				sprite->setPosition(0, -96 * i);
+				this->addChild(sprite, 100);
+				sprite->setName("bomb");
+				auto size = sprite->getContentSize();
+				auto body = PhysicsBody::createBox(Size(size.width, size.height));
+				body->setCollisionBitmask(0);
+				body->setContactTestBitmask(1);
+				sprite->setPhysicsBody(body);
 
 				if (ptr->_mapProp[coordPos.x][coordPos.y + i] == 4 || ptr->_mapProp[coordPos.x][coordPos.y + i] > 13)
 				{
@@ -74,10 +86,16 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x + i][coordPos.y] != 1)
 			{
-				auto sprite3 = Sprite::create("image/sample.png");
-				sprite3->setAnchorPoint(Vec2(0, 0));
-				sprite3->setPosition(96 * i, 0);
-				this->addChild(sprite3, 100);
+				auto sprite = Sprite::create("image/sample.png");
+				sprite->setAnchorPoint(Vec2(0, 0));
+				sprite->setPosition(96 * i, 0);
+				this->addChild(sprite, 100);
+				sprite->setName("bomb");
+				auto size = sprite->getContentSize();
+				auto body = PhysicsBody::createBox(Size(size.width, size.height));
+				body->setCollisionBitmask(0);
+				body->setContactTestBitmask(1);
+				sprite->setPhysicsBody(body);
 
 				if (ptr->_mapProp[coordPos.x + i][coordPos.y] == 4 || ptr->_mapProp[coordPos.x + i][coordPos.y] > 13)
 				{
@@ -93,10 +111,16 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x - i][coordPos.y] != 1)
 			{
-				auto sprite4 = Sprite::create("image/sample.png");
-				sprite4->setAnchorPoint(Vec2(0, 0));
-				sprite4->setPosition(-96 * i, 0);
-				this->addChild(sprite4, 100);
+				auto sprite = Sprite::create("image/sample.png");
+				sprite->setAnchorPoint(Vec2(0, 0));
+				sprite->setPosition(-96 * i, 0);
+				this->addChild(sprite, 100);
+				sprite->setName("bomb");
+				auto size = sprite->getContentSize();
+				auto body = PhysicsBody::createBox(Size(size.width, size.height));
+				body->setCollisionBitmask(0);
+				body->setContactTestBitmask(1);
+				sprite->setPhysicsBody(body);
 
 				if (ptr->_mapProp[coordPos.x - i][coordPos.y] == 4 || ptr->_mapProp[coordPos.x - i][coordPos.y] > 13)
 				{

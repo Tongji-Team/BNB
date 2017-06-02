@@ -13,8 +13,16 @@ bool Player::init()
 	_up = false;
 	_down = false;
 	_addBomb = false;
+	_isAlive = true;
 
 	this->initWithFile("image/player.png");
+
+	auto size = this->getContentSize();
+	auto body = PhysicsBody::createBox(Size(size.width, size.height));
+	body->setCollisionBitmask(0);
+	body->setContactTestBitmask(1);
+	this->setPhysicsBody(body);
+
 	return true;
 }
 

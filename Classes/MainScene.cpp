@@ -63,8 +63,9 @@ Player* MainScene::addRole(float x,float y)
 {
 	auto player = Player::create();
 	player->setAnchorPoint(Vec2(0.5,0.5));
-	player->setScale(1);
+	player->setScale(0.8);
 	player->setPosition(Vec2(x, y));
+	player->setName("player");
 	this->addChild(player,100);
 	player->setGlobalZOrder(100);
 	return player;
@@ -85,17 +86,17 @@ void MainScene::addListener()
 		case 146:_player->alterUp();
 			break;
 		case 59:if (_player->getBombMaxNum() == _player->getBombPresentNum())
-				{
 					log("full bomb");
-				}
 				else
-				{
 					placeBomb(_player);
-				}
 				break;
 		}
 
 	};
+
+	_listener_contact = EventListenerPhysicsContact::create();
+	_listener_contact->onContactBegin = CC_CALLBACK_1(MainScene::onContactBegin, this);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listener_contact, 1);
 
 	this->scheduleUpdate();
 
@@ -183,11 +184,12 @@ void MainScene::addPlayer()
 		auto y = spawnPoint["y"].asFloat();
 		log("PlayerPoint:%f,%f", x, y);
 		
-		_playerGroup.push_back(addRole(x + 360, y + 80));
+		auto player = addRole(x + 360, y + 80);
+		_playerGroup.pushBack(player);
 		++icount;
 	}
 
-	_player = _playerGroup[g_playerID - 1];
+	_player = _playerGroup.at(g_playerID - 1);
 
 }
 
@@ -228,8 +230,21 @@ void MainScene::placeBomb(Player* player)
 
 void MainScene::update(float dt)
 {
-	for (auto checkPlayer : _playerGroup)
+	for (Vector<Player*>::iterator it = _playerGroup.begin(); it != _playerGroup.end();)
 	{
+		if (_playerGroup.size() == 1)
+			break;
+
+		if (!(*it)->_isAlive)
+		{
+			if (*it != _player)
+				(*it)->removeFromParent();
+			it = _playerGroup.erase(it);
+			continue;
+		}
+
+		auto checkPlayer = *it;
+		++it;
 		auto pos = checkPlayer->getPosition();
 		if (checkPlayer->getLeft())
 		{
@@ -308,6 +323,30 @@ bool MainScene::checkCollidable(Point pos, Player* ptr)
 	return _mapProp[tileCoord.x][tileCoord.y] != 0;
 }
 
+bool MainScene::onContactBegin(const PhysicsContact& contact)
+{
+	auto objA = static_cast<Sprite*>(contact.getShapeA()->getBody()->getNode());
+	auto objB = static_cast<Sprite*>(contact.getShapeB()->getBody()->getNode());
+	auto nameA = objA->getName();
+	auto nameB = objB->getName();
+
+	if (nameA == "player"&&nameB == "bomb")
+	{
+		log("player has been slayed");
+		auto player = static_cast<Player*>(objA);
+		player->_isAlive = false;
+	}
+
+	else if (nameA == "bomb"&&nameB == "player")
+	{
+		log("player has been slayed");
+		auto player = static_cast<Player*>(objB);
+		player->_isAlive = false;
+	}
+
+	return true;
+}
+
 void MainScene::removeBlock(Point coord)
 {
 	log("remove:%f,%f", coord.x, coord.y);
@@ -321,13 +360,13 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 	Player* checkPlayer;
 
 	if (checkStr.find("p1") != std::string::npos)
-		checkPlayer = ptr->_playerGroup[0];
+		checkPlayer = ptr->_playerGroup.at(0);
 	else if (checkStr.find("p2") != std::string::npos)
-		checkPlayer = ptr->_playerGroup[1];
+		checkPlayer = ptr->_playerGroup.at(1);
 	else if (checkStr.find("p3") != std::string::npos)
-		checkPlayer = ptr->_playerGroup[2];
+		checkPlayer = ptr->_playerGroup.at(2);
 	else
-		checkPlayer = ptr->_playerGroup[3];
+		checkPlayer = ptr->_playerGroup.at(3);
 
 	if (checkStr.find("u") != std::string::npos)
 		checkPlayer->_up = true;
@@ -390,7 +429,7 @@ void MainScene::initClientSend(MainScene* ptr)
 	auto down = ptr->_player->_down;
 
 	char buf[80];
-	while (1)
+	while (ptr->_player->_isAlive)
 	{
 		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down
 			|| ptr->_player->_addBomb)
@@ -422,6 +461,9 @@ void MainScene::initClientSend(MainScene* ptr)
 			down = ptr->_player->_down;
 		}
 	}
+	boost::this_thread::sleep(boost::posix_time::seconds(2));
+	ptr->_player->removeFromParent();
+	ptr->_player = NULL;
 	socket.close();
 }
 
