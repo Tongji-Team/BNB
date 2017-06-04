@@ -19,6 +19,7 @@ public:
 	void clickFindRoomCallBack(Ref* obj,int mapNum);
 	void clickStartCallBack(Ref* obj, int mapNum);
 	void clickRoomListTextCallBack(Ref* obj, cocos2d::ui::ListView* list,int tag);
+	void clickBackCallBack(Ref* obj);
 
 	void addSelectedMenu();
 	void removeSelectedMenu();
@@ -43,6 +44,7 @@ private:
 	cocos2d::Sprite* _mapWindow;
 	int _currentMapTag = 0;
 	int _clientNum = 0;
+	bool mapMenuIsShow = 0;
 };
 
 #endif 
