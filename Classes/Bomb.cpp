@@ -37,7 +37,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 			{
 				auto sprite = Sprite::create("image/sample.png");//Õ¨µ¯Ð§¹û
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(0, 96 * i);
+				sprite->setPosition(0, 80 * i);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -63,7 +63,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 			{
 				auto sprite = Sprite::create("image/sample.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(0, -96 * i);
+				sprite->setPosition(0, -80 * i);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -88,7 +88,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 			{
 				auto sprite = Sprite::create("image/sample.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(96 * i, 0);
+				sprite->setPosition(80 * i, 0);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -113,7 +113,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 			{
 				auto sprite = Sprite::create("image/sample.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(-96 * i, 0);
+				sprite->setPosition(-80 * i, 0);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();

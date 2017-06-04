@@ -13,6 +13,10 @@ extern std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存�
 extern boost::asio::ip::udp::endpoint g_serverEndpoint;//用于存放服务器的地址
 extern int g_mapSeed;
 
+#define deltaX 240
+#define deltaY 560
+#define tileSize 32
+
 Scene* MainScene::createScene()
 {
 	auto scene = Scene::createWithPhysics();
@@ -63,9 +67,9 @@ Player* MainScene::addRole(float x,float y)
 {
 	auto player = Player::create();
 	player->setAnchorPoint(Vec2(0.5,0.5));
-	player->setScale(0.8);
 	player->setPosition(Vec2(x, y));
 	player->setName("player");
+	player->setScale(0.8);
 	this->addChild(player,100);
 	player->setGlobalZOrder(100);
 	return player;
@@ -135,7 +139,9 @@ bool MainScene::addMap()
 	auto origin = Vec2(0.5,0.5);
 	_tileMap->setAnchorPoint(origin);
 	_tileMap->setPosition(VisibleRect::center());
-	log("center:%f,%f", VisibleRect::center().x, VisibleRect::center().y);
+	//_tileMap->setScale(1.25);
+	Size size = _tileMap->getContentSize();
+	log("map size: %f,%f", size.height, size.width);
 	addChild(_tileMap,0);
 
 	auto collidable = _tileMap->getLayer("collision");
@@ -149,7 +155,7 @@ bool MainScene::addMap()
 		std::vector<int> prop;
 		for (int j = 0; j < 15; ++j)
 		{
-			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(340 + 20, 60 + 20));
+			map.push_back(road->getPositionAt(Vec2(i, j)) + Vec2(deltaX + 16, deltaY - 480 + 16));
 
 			auto tileGidCol = collidable->getTileGIDAt(Point(i,j));
 			auto tileGidIte = _item->getTileGIDAt(Point(i, j));
@@ -184,7 +190,7 @@ void MainScene::addPlayer()
 		auto y = spawnPoint["y"].asFloat();
 		log("PlayerPoint:%f,%f", x, y);
 		
-		auto player = addRole(x + 360, y + 80);
+		auto player = addRole(x + deltaX + 16, y + deltaY - 480 + 16);
 		_playerGroup.pushBack(player);
 		++icount;
 	}
@@ -299,8 +305,8 @@ void MainScene::update(float dt)
 
 Point MainScene::tileCoordFromPosition(Point pos)
 {
-	int x = (pos.x - 340) / 40;
-	int y = (660 - pos.y) / 40;
+	int x = (pos.x - deltaX) / tileSize;
+	int y = (deltaY - pos.y) / tileSize;
 	return Point(x, y);
 }
 
