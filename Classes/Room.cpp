@@ -277,7 +277,7 @@ void Room::initReceiver(Room* ptr)
 		sprintf(sendBuf, "%d", g_mapSeed);
 		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
 
-		boost::this_thread::sleep(boost::posix_time::seconds(2));
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 		log("reveiver running");
 	}
 
@@ -332,7 +332,7 @@ void Room::initClient(Room* ptr)
 			connected = true;
 		}
 
-		boost::this_thread::sleep(boost::posix_time::seconds(2));
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 		log("client running");
 	}
 

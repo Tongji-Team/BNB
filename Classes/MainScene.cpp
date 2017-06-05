@@ -491,6 +491,7 @@ void MainScene::initClientSend(MainScene* ptr)
 		}
 	}
 	boost::this_thread::sleep(boost::posix_time::seconds(2));
+	ptr->_listener_key->release();
 	ptr->_player->removeFromParent();
 	ptr->_player = NULL;
 	socket.close();
