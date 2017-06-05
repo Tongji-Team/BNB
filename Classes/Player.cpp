@@ -14,6 +14,7 @@ bool Player::init()
 	_down = false;
 	_addBomb = false;
 	_isAlive = true;
+	_checkPoint = Point(0, 0);
 
 	this->initWithFile("image/player.png");
 
