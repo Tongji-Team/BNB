@@ -255,6 +255,8 @@ void MainScene::update(float dt)
 		if (checkPlayer->getLeft())//向左移动并播放动画
 		{
 			pos = checkPlayer->walkLeft();
+			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
+				pos = checkPlayer->_checkPoint;
 			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
 			{
 				log("collided");
@@ -281,6 +283,8 @@ void MainScene::update(float dt)
 		if (checkPlayer->getRight())//向右移动并播放动画
 		{
 			pos = checkPlayer->walkRight();
+			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
+				pos = checkPlayer->_checkPoint;
 			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
 			{
 				log("collided");
@@ -307,6 +311,8 @@ void MainScene::update(float dt)
 		if (checkPlayer->getUp())//向上移动并播放动画
 		{
 			pos = checkPlayer->walkUp();
+			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
+				pos = checkPlayer->_checkPoint;
 			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
 			{
 				log("collided");
@@ -330,9 +336,11 @@ void MainScene::update(float dt)
 			}
 		}
 
-		if (checkPlayer->getDown())//向右移动并播放动画
+		if (checkPlayer->getDown())//向下移动并播放动画
 		{
 			pos = checkPlayer->walkDown();
+			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
+				pos = checkPlayer->_checkPoint;
 			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
 			{
 				log("collided");

@@ -26,7 +26,7 @@ bool Player::init()
 	auto animationDown = Animation::create();//四个方向的动作
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-	frameCache->addSpriteFramesWithFile("_playerOne.plist", "_playerOne.png");
+	frameCache->addSpriteFramesWithFile("animation/_playerOne.plist", "animation/_playerOne.png");
 	this->initWithSpriteFrameName("playerOne_Down2.png");
 	for (int l = 1; l < 5; ++l)
 	{
