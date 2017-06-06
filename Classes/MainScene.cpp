@@ -139,7 +139,6 @@ bool MainScene::addMap()
 	auto origin = Vec2(0.5,0.5);
 	_tileMap->setAnchorPoint(origin);
 	_tileMap->setPosition(VisibleRect::center());
-	//_tileMap->setScale(1.25);
 	Size size = _tileMap->getContentSize();
 	log("map size: %f,%f", size.height, size.width);
 	addChild(_tileMap,0);
@@ -252,64 +251,108 @@ void MainScene::update(float dt)
 		auto checkPlayer = *it;
 		++it;
 		auto pos = checkPlayer->getPosition();
-		if (checkPlayer->getLeft())
+		
+		if (checkPlayer->getLeft())//向左移动并播放动画
 		{
 			pos = checkPlayer->walkLeft();
-			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
-				pos = checkPlayer->_checkPoint;
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) 
-				|| this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
 			{
 				log("collided");
 			}
 			else
 			{
 				checkPlayer->setPosition(pos);
+				if (!checkPlayer->_goLeft)
+				{
+					checkPlayer->runAction(checkPlayer->_animateLeft);
+					checkPlayer->_goLeft = true;
+				}
 			}
 		}
-		if (checkPlayer->getRight())
+		else
+		{
+			if (checkPlayer->_goLeft)
+			{
+				checkPlayer->stopAction(checkPlayer->_animateLeft);
+				checkPlayer->_goLeft = false;
+			}
+		}
+
+		if (checkPlayer->getRight())//向右移动并播放动画
 		{
 			pos = checkPlayer->walkRight();
-			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
-				pos = checkPlayer->_checkPoint;
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) 
-				|| this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
 			{
 				log("collided");
 			}
 			else
 			{
 				checkPlayer->setPosition(pos);
+				if (!checkPlayer->_goRight)
+				{
+					checkPlayer->runAction(checkPlayer->_animateRight);
+					checkPlayer->_goRight = true;
+				}
 			}
 		}
-		if (checkPlayer->getUp())
+		else
+		{
+			if (checkPlayer->_goRight)
+			{
+				checkPlayer->stopAction(checkPlayer->_animateRight);
+				checkPlayer->_goRight = false;
+			}
+		}
+
+		if (checkPlayer->getUp())//向上移动并播放动画
 		{
 			pos = checkPlayer->walkUp();
-			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
-				pos = checkPlayer->_checkPoint;
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) 
-				|| this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
+			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
 			{
 				log("collided");
 			}
 			else
 			{
 				checkPlayer->setPosition(pos);
+				if (!checkPlayer->_goUp)
+				{
+					checkPlayer->runAction(checkPlayer->_animateUp);
+					checkPlayer->_goUp = true;
+				}
 			}
 		}
-		if (checkPlayer->getDown())
+		else
+		{
+			if (checkPlayer->_goUp)
+			{
+				checkPlayer->stopAction(checkPlayer->_animateUp);
+				checkPlayer->_goUp = false;
+			}
+		}
+
+		if (checkPlayer->getDown())//向右移动并播放动画
 		{
 			pos = checkPlayer->walkDown();
-			if (checkPlayer != _player&&pos != checkPlayer->_checkPoint)
-				pos = checkPlayer->_checkPoint;
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) 
-				|| this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
+			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
 			{
 				log("collided");
 			}
 			else
 			{
 				checkPlayer->setPosition(pos);
+				if (!checkPlayer->_goDown)
+				{
+					checkPlayer->runAction(checkPlayer->_animateDown);
+					checkPlayer->_goDown = true;
+				}
+			}
+		}
+		else
+		{
+			if (checkPlayer->_goDown)
+			{
+				checkPlayer->stopAction(checkPlayer->_animateDown);
+				checkPlayer->_goDown = false;
 			}
 		}
 	}
@@ -373,7 +416,7 @@ void MainScene::removeBlock(Point coord)
 
 void MainScene::dealMessage(char* Buf, MainScene*ptr)
 {
-	/*示例消息：p2 u l b [123.45,123.45]*/
+	/*示例消息：p2 u l  b [123.45,123.45]*/
 	std::string checkStr(Buf);
 	Player* checkPlayer;
 
@@ -395,7 +438,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		if (checkStr.find("d") != std::string::npos)
 			checkPlayer->_down = true;
 		else
-			checkPlayer->_down = false;
+			checkPlayer->_down= false;
 		if (checkStr.find("l") != std::string::npos)
 			checkPlayer->_left = true;
 		else
@@ -403,7 +446,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		if (checkStr.find("r") != std::string::npos)
 			checkPlayer->_right = true;
 		else
-			checkPlayer->_right = false;
+			checkPlayer->_right= false;
 		if (checkStr.find("b") != std::string::npos)//add bomb
 			ptr->placeBomb(checkPlayer);
 
@@ -414,8 +457,9 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		auto posNext = checkStr.find(']');
 		auto subY = checkStr.substr(posEnd + 1, posNext - posEnd - 1);
 		auto posY = atof(subY.c_str());
-		checkPlayer->_checkPoint = Point(posX, posY);
+		+checkPlayer->_checkPoint = Point(posX, posY);
 	}
+
 }
 
 void MainScene::initServer(MainScene* ptr)
@@ -480,7 +524,7 @@ void MainScene::initClientSend(MainScene* ptr)
 				ptr->_player->_addBomb = false;
 			}
 
-			sprintf(buf + strlen(buf), " [%.2f,%.2f]", pos.x, pos.y);
+			sprintf(buf + strlen(buf), " [%.2f,%.2f] ", pos.x, pos.y);
 
 			socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), server_point);
 
@@ -501,7 +545,7 @@ void MainScene::initClientReceive(MainScene*ptr)
 {
 	namespace ip = boost::asio::ip;
 	boost::asio::io_service io_service;
-
+	
 	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6104));
 	ip::udp::endpoint server_point;
 
