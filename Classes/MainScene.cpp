@@ -416,7 +416,7 @@ void MainScene::removeBlock(Point coord)
 
 void MainScene::dealMessage(char* Buf, MainScene*ptr)
 {
-	/*示例消息：p2 u l  b [123.45,123.45]*/
+	/*示例消息：p2 u l b [123.45,123.45]*/
 	std::string checkStr(Buf);
 	Player* checkPlayer;
 
@@ -438,7 +438,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		if (checkStr.find("d") != std::string::npos)
 			checkPlayer->_down = true;
 		else
-			checkPlayer->_down= false;
+			checkPlayer->_down = false;
 		if (checkStr.find("l") != std::string::npos)
 			checkPlayer->_left = true;
 		else
@@ -446,7 +446,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		if (checkStr.find("r") != std::string::npos)
 			checkPlayer->_right = true;
 		else
-			checkPlayer->_right= false;
+			checkPlayer->_right = false;
 		if (checkStr.find("b") != std::string::npos)//add bomb
 			ptr->placeBomb(checkPlayer);
 
@@ -457,7 +457,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		auto posNext = checkStr.find(']');
 		auto subY = checkStr.substr(posEnd + 1, posNext - posEnd - 1);
 		auto posY = atof(subY.c_str());
-		+checkPlayer->_checkPoint = Point(posX, posY);
+		checkPlayer->_checkPoint = Point(posX, posY);
 	}
 
 }
@@ -524,7 +524,7 @@ void MainScene::initClientSend(MainScene* ptr)
 				ptr->_player->_addBomb = false;
 			}
 
-			sprintf(buf + strlen(buf), " [%.2f,%.2f] ", pos.x, pos.y);
+			sprintf(buf + strlen(buf), " [%.2f,%.2f]", pos.x, pos.y);
 
 			socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), server_point);
 
