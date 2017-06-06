@@ -48,8 +48,19 @@ public:
 	bool _down;
 
 	bool _addBomb;
-
 	bool _isAlive;
+
+	RepeatForever* _animateLeft;
+	RepeatForever* _animateRight;
+	RepeatForever* _animateUp;
+	RepeatForever* _animateDown;//进行动画选择
+
+	bool _goLeft;//描述是否在播放动画
+	bool _goRight;
+	bool _goUp;
+	bool _goDown;
+
+	Animate* createAnimate();//创建动画
 
 	Point _checkPoint;
 

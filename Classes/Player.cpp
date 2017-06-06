@@ -14,7 +14,52 @@ bool Player::init()
 	_down = false;
 	_addBomb = false;
 	_isAlive = true;
+	_goDown = false;
+	_goLeft = false;
+	_goRight = false;
+	_goUp = false;
 	_checkPoint = Point(0, 0);
+
+	auto animationLeft = Animation::create();
+	auto animationRight = Animation::create();
+	auto animationUp = Animation::create();
+	auto animationDown = Animation::create();//四个方向的动作
+
+	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
+	frameCache->addSpriteFramesWithFile("_playerOne.plist", "_playerOne.png");
+	this->initWithSpriteFrameName("playerOne_Down2.png");
+	for (int l = 1; l < 5; ++l)
+	{
+		auto frameLeft = frameCache->getSpriteFrameByName(StringUtils::format("playerOne_Left%d.png", l));
+		auto frameRight = frameCache->getSpriteFrameByName(StringUtils::format("playerOne_Right%d.png", l));
+		auto frameUp = frameCache->getSpriteFrameByName(StringUtils::format("playerOne_Up%d.png", l));
+		auto frameDown = frameCache->getSpriteFrameByName(StringUtils::format("playerOne_Down%d.png", l));
+
+		animationLeft->addSpriteFrame(frameLeft);
+		animationRight->addSpriteFrame(frameRight);
+		animationUp->addSpriteFrame(frameUp);
+		animationDown->addSpriteFrame(frameDown);
+	}
+
+	animationLeft->setDelayPerUnit(3.0f / 15.0f);
+	animationLeft->setRestoreOriginalFrame(true);
+	_animateLeft = RepeatForever::create(Animate::create(animationLeft));
+	_animateLeft->retain();
+
+	animationRight->setDelayPerUnit(3.0f / 15.0f);
+	animationRight->setRestoreOriginalFrame(true);
+	_animateRight = RepeatForever::create(Animate::create(animationRight));
+	_animateRight->retain();
+
+	animationUp->setDelayPerUnit(3.0f / 15.0f);
+	animationUp->setRestoreOriginalFrame(true);
+	_animateUp = RepeatForever::create(Animate::create(animationUp));
+	_animateUp->retain();
+
+	animationDown->setDelayPerUnit(3.0f / 15.0f);
+	animationDown->setRestoreOriginalFrame(true);
+	_animateDown = RepeatForever::create(Animate::create(animationDown));
+	_animateDown->retain();
 
 	this->initWithFile("image/player.png");
 
