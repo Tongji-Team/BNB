@@ -5,6 +5,21 @@ bool Bomb::init(int power)
 {
 	this->initWithFile("image/sample.png");
 	this->_bombPower = power;
+	bool _bombAni = false;
+
+	auto animationBomb = Animation::create();
+	SpriteFrameCache* frameCache_bomb = SpriteFrameCache::getInstance();
+	frameCache_bomb->addSpriteFramesWithFile("animation/_bombAni.plist", "animation/_bombAni.png");
+	for (int i = 1; i < 4; ++i)
+	{
+		auto frameBomb = frameCache_bomb->getSpriteFrameByName(StringUtils::format("_bombJump%d.png", i));
+		animationBomb->addSpriteFrame(frameBomb);
+	}
+    
+	animationBomb->setDelayPerUnit(1.0f / 3.0f);
+	_animateBomb = RepeatForever::create(Animate::create(animationBomb));
+	_animateBomb->retain();
+	
 	return true;
 }
 

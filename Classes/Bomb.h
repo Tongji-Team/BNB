@@ -15,6 +15,10 @@ public:
 
 	void boom(MainScene* ptr, Point coordPos);
 
+	bool _bombAni;//描述是否在播放炸弹动画
+
+	RepeatForever* _animateBomb;
+
 private:
 	int _bombPower;
 };

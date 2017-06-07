@@ -223,8 +223,11 @@ void MainScene::placeBomb(Player* player)
 {
 	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
 	auto bomb = player->getBomb();
-	bomb->setScale(0.4);
 	this->addChild(bomb);
+
+	bomb->runAction(bomb->_animateBomb);
+	bomb->_bombAni= true;//炸弹动画
+
 	player->_addBomb = true;
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
@@ -379,7 +382,7 @@ bool MainScene::checkCollidable(Point pos, Player* ptr)
 {
 	Point tileCoord = this->tileCoordFromPosition(pos);
 
-	if (tileCoord.x<0 || tileCoord.x>14 || tileCoord.y<0 || tileCoord.y>14)//超出地图边界的情况
+	if (tileCoord.x < 0 || tileCoord.x>14 || tileCoord.y < 0 || tileCoord.y>14)//超出地图边界的情况
 		return true;
 
 	if (_mapProp[tileCoord.x][tileCoord.y] > 10 && _mapProp[tileCoord.x][tileCoord.y] < 14)
