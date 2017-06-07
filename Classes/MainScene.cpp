@@ -368,6 +368,8 @@ void MainScene::update(float dt)
 
 Point MainScene::tileCoordFromPosition(Point pos)
 {
+	if (pos.x - deltaX < 0 || deltaY - pos.y < 0)
+		return Point(-1, -1);
 	int x = (pos.x - deltaX) / tileSize;
 	int y = (deltaY - pos.y) / tileSize;
 	return Point(x, y);
@@ -376,6 +378,9 @@ Point MainScene::tileCoordFromPosition(Point pos)
 bool MainScene::checkCollidable(Point pos, Player* ptr)
 {
 	Point tileCoord = this->tileCoordFromPosition(pos);
+
+	if (tileCoord.x<0 || tileCoord.x>14 || tileCoord.y<0 || tileCoord.y>14)//超出地图边界的情况
+		return true;
 
 	if (_mapProp[tileCoord.x][tileCoord.y] > 10 && _mapProp[tileCoord.x][tileCoord.y] < 14)
 	{
