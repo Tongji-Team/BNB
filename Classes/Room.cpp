@@ -55,7 +55,7 @@ bool Room::init()
 	this->addChild(_initMenu);
 
 	auto backLabel = Label::createWithTTF("Back", "fonts/Marker Felt.ttf", 40);
-	auto backItem = MenuItemLabel::create(backLabel, CC_CALLBACK_1(Room::clickBackCallBack, this));
+	auto backItem = MenuItemLabel::create(backLabel, CC_CALLBACK_1(Room::clickRoomBackCallBack, this));
 	auto backMenu = Menu::create(backItem, nullptr);
 	backMenu->setPosition(visibleSize.width*0.75, visibleSize.height*0.3);
 	this->addChild(backMenu);
@@ -75,12 +75,6 @@ bool Room::init()
 	addMapNames();
 
 	return true;
-}
-
-void Room::addMapNames()
-{
-	_mapNames.push_back("        map1");
-	_mapNames.push_back("        map2");
 }
 
 void Room::clickInitMenuCallBack(Ref* obj)
@@ -128,7 +122,7 @@ void Room::clickCreatRoomCallBack(Ref* obj, int mapNum)
 	_threadGroup.create_thread(std::bind(&initReceiver, this));
 	_threadGroup.create_thread(std::bind(&initClient, this));
 
-	addRomeList();
+	addSetRoomNameLayer();
 }
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
@@ -144,13 +138,14 @@ void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
 {
 	//信息交互待补充
 	log("click room list text");
-
-	for (int i = 9; i < 15; ++i)
+	for (int i = 10; i < 15; ++i)
 	{
 		auto listText = dynamic_cast<ui::Text*>(list->getChildByTag(i));
 
 		if (i == tag)
 		{
+			std::string title = listText->getString(); 
+			_chosenRoom = std::string(title, 0, title.find(' ')); //设置被选中的房间
 			listText->setFontSize(30);
 			listText->setTextColor(Color4B::BLACK);
 		}
@@ -162,18 +157,78 @@ void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
 	}
 }
 
-void Room::clickBackCallBack(Ref* obj)
+void Room::clickRoomBackCallBack(Ref* obj)
 {
 	log("click back");
 	auto scene = StartScene::createScene();
 	auto reScene = TransitionTurnOffTiles::create(1.0f, scene);
 	Director::getInstance()->replaceScene(reScene);
 }
+
+void Room::clickRoomListBackCallBack(Ref* obj)
+{
+	removeRoomList();
+}
+
+void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
+{
+	auto name = inputField->getString();
+	_rooms.pushBack(RoomItem(name, 1));  //向_rooms中添加新建的房间
+
+	//待补充：间新建房间的信息传递给其他服务器/客户端
+
+
+	removeSetRoomNameLayer();
+	addReadyRoomLayer(name);
+}
+
+void Room::clickSetRoomInputCallBack(Ref* obj, ui::TextField* inputField)
+{
+	inputField->setPlaceHolderColor(Color3B::WHITE);
+}
+
+void Room::clickSetRoomBackCallBack(Ref* obj)
+{
+	removeSetRoomNameLayer();
+}
+
+void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
+{
+	
+	auto room = _rooms.getRoomByName(_chosenRoom); 
+	if (room != _rooms.end())
+	{
+		int playerNum = room->getPlayerNum() + 1;
+		room->setPlayerNum(playerNum); //改变房间中玩家数量信息
+		
+		//待补充：将房间玩家数量改变的信息传给其他服务器/客户端
+
+		removeRoomList();
+		addReadyRoomLayer(_chosenRoom);
+	}
+	else
+	{
+
+	}	
+
+}
+
+void Room::clickReadyRoomBackCallBack(Ref* obj)
+{
+	removeReadyRoomLayer();
+}
+
 void Room::makeMapSeed()
 {
 	srand(static_cast<unsigned>(time(NULL)));
 	auto seed = rand() % 100 + 1;
 	g_mapSeed = seed;
+}
+
+void Room::addMapNames()
+{
+	_mapNames.push_back("        map1");
+	_mapNames.push_back("        map2");
 }
 
 void Room::addSelectedMenu()
@@ -208,30 +263,135 @@ void Room::changeMapWindow()
 void Room::addRomeList()
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-
-	auto node = CSLoader::getInstance()->createNode("cocosstudio/roomListLayer.csb");
-
-	auto list = dynamic_cast<ui::ListView*>(node->getChildByName("roomListMenu"));
-
-	auto listImage = dynamic_cast<ui::ImageView*>(node->getChildByName("backImage"));
-	listImage->loadTexture("image/roomListBack.png");
-
-	auto startButton = dynamic_cast<ui::Button*>(node->getChildByName("startButton"));
-	startButton->addTouchEventListener(CC_CALLBACK_1(Room::clickStartCallBack, this, _currentMapTag));
-	startButton->setTitleFontSize(40);
-	startButton->setTitleFontName("fonts/Marker Felt.ttf");
-	for (int tag = 9; tag < 15; ++tag)
+	//设置虚化背景
+	_backColor = LayerColor::create();
+	_backColor->initWithColor(Color4B(162, 162, 162, 128));
+	//获取控件
+	_roomListLayer = CSLoader::getInstance()->createNode("cocosstudio/roomListLayer.csb");
+	auto roomListBack = dynamic_cast<ui::ImageView*>(_roomListLayer->getChildByName("roomListBack"));
+	auto roomListMenu = dynamic_cast<ui::ListView*>(roomListBack->getChildByName("roomListMenu"));
+	auto joinButton = dynamic_cast<ui::Button*>(roomListBack->getChildByName("joinButton"));
+	auto backButton = dynamic_cast<ui::Button*>(roomListBack->getChildByName("backButton"));
+	for (int tag = 10; tag < 15; ++tag)
 	{
-		auto listText = dynamic_cast<ui::Text*>(list->getChildByTag(tag));
-		listText->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListTextCallBack, this, list, tag));
+		auto listText = dynamic_cast<ui::Text*>(roomListMenu->getChildByTag(tag));
+		listText->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListTextCallBack, this, roomListMenu, tag));
+	}
+	//设置控件属性
+	roomListBack->loadTexture("image/roomListBack.png");
+
+	joinButton->addTouchEventListener(CC_CALLBACK_1(Room::clickJoinCallBack, this, _chosenRoom));
+	joinButton->setTitleFontName("fonts/Marker Felt.ttf");
+	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListBackCallBack, this));
+	backButton->setTitleFontName("fonts/Marker Felt.ttf");
+
+	/*
+	 *设置房间列表信息
+	 *暂拟通过Room的private变量_rooms获取所有已经创建的房间信息
+	 */
+	int roomNum = _rooms.size();  //获取房间数量
+	for (int i = 0; i < roomNum; ++i)
+	{
+		auto listText = dynamic_cast<ui::Text*>(roomListMenu->getChildByTag(10 + i));
+		__String* title = __String::createWithFormat("%s :%d",_rooms[i].getRoomName().c_str(),_rooms[i].getPlayerNum());
+		listText->setString(title->getCString());
 	}
 
+	this->addChild(_backColor);
+	this->addChild(_roomListLayer, 1);
+}
+
+void Room::removeRoomList()
+{
+	this->removeChild(_roomListLayer);
+	this->removeChild(_backColor);
+}
+
+void Room::addSetRoomNameLayer()
+{
+    _backColor = LayerColor::create();
+	_backColor->initWithColor(Color4B(162, 162, 162, 128));
+	
+	_setRoomNameLayer = CSLoader::getInstance()->createNode("cocosstudio/setRoomName.csb");
+	auto backImage = dynamic_cast<ui::ImageView*>(_setRoomNameLayer->getChildByName("backImage"));
+	auto textBack = dynamic_cast<ui::ImageView*>(backImage->getChildByName("textBack"));
+	auto inputField = dynamic_cast<ui::TextField*>(textBack->getChildByName("inputField"));
+	auto okButton = dynamic_cast<ui::Text*>(backImage->getChildByName("ok"));
+	auto backButton = dynamic_cast<ui::Text*>(backImage->getChildByName("back"));
+
+	textBack->loadTexture("image/textBack.png");
+	inputField->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomInputCallBack,this,inputField));
+
+	backImage->loadTexture("image/setRoomBack.png");
+	
+	okButton->setFontSize(30);
+	okButton->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomOkCallBack,this,inputField));
+	okButton->setFontName("fonts/Marker Felt.ttf");
+	backButton->setFontSize(30);
+	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomBackCallBack, this));
+	backButton->setFontName("fonts/Marker Felt.ttf");
+
+	this->addChild(_backColor);
+	this->addChild(_setRoomNameLayer, 1);
+}
+
+void Room::removeSetRoomNameLayer()
+{
+	this->removeChild(_setRoomNameLayer);
+	this->removeChild(_backColor);
+}
+
+void Room::addReadyRoomLayer(const std::string& name)
+{
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+
+	//读取控件
+	_readyRoomLayer = CSLoader::getInstance()->createNode("cocosstudio/readyRoomLayer.csb");
+	auto readyRoomBack = dynamic_cast<ui::ImageView*>(_readyRoomLayer->getChildByName("readyRoomBack"));
+	auto roomState = dynamic_cast<ui::Layout*>(readyRoomBack->getChildByName("roomState"));
+	auto startButton = dynamic_cast<ui::Button*>(readyRoomBack->getChildByName("startButton"));
+	auto backButton = dynamic_cast<ui::Button*>(readyRoomBack->getChildByName("backButton"));
+	auto nameText = dynamic_cast<ui::Text*>(roomState->getChildByName("name"));
+	auto playerText = dynamic_cast<ui::Text*>(roomState->getChildByName("player"));
+
+	//设置控件属性
+	readyRoomBack->loadTexture("image/readyRoomBack.png");
+
+	startButton->setTitleFontSize(40);
+	startButton->setTitleFontName("fonts/Marker Felt.ttf");
+	startButton->addTouchEventListener(CC_CALLBACK_1(Room::clickStartCallBack, this, _currentMapTag));
+	backButton->setTitleFontSize(40);
+	backButton->setTitleFontName("fonts/Marker Felt.ttf");
+	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickReadyRoomBackCallBack, this));
+
+	//添加设置地图信息
 	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag);
 	auto mapWindow = Sprite::create(mapName->getCString());
-	mapWindow->setPosition(visibleSize.width*0.7, visibleSize.height*0.6);
-	node->addChild(mapWindow);
+	mapWindow->setPosition(visibleSize.width*0.3, visibleSize.height*0.6);
+	_readyRoomLayer->addChild(mapWindow, 1);
 
-	addChild(node, 1);
+	/*
+	 *设置该房间名称及玩家数量
+	 *暂拟通过Room的private变量_rooms查找该房间信息
+	 *玩家数量信息当前为静态量,与服务器的实时信息交互待添加。
+	 */
+	auto room = _rooms.getRoomByName(name);  //获取该房间对象
+	if (room != _rooms.end())
+	{
+		nameText->setString(room->getRoomName());
+		__String* playerNum = __String::createWithFormat("%d", room->getPlayerNum());
+		playerText->setString(playerNum->getCString());
+	}
+	else
+	{
+		nameText->setString("emptyRoom");
+	}
+	this->addChild(_readyRoomLayer);
+}
+
+void Room::removeReadyRoomLayer()
+{
+	this->removeChild(_readyRoomLayer);
 }
 
 void Room::initBroadcast(Room* ptr)
