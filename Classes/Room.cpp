@@ -166,6 +166,7 @@ void Room::clickRoomListBackCallBack(Ref* obj)
 void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 {
 	auto name = inputField->getString();
+	_myname = name;
 	_rooms.pushBack(RoomItem(name, 1));  //向_rooms中添加新建的房间
 
 	g_isClient = false;
@@ -403,11 +404,11 @@ void Room::initBroadcast(Room* ptr)
 	socket.set_option(boost::asio::socket_base::broadcast(true));
 	ip::udp::endpoint broadcast_endpoint(ip::address_v4::broadcast(), 6001);
 
-	char buf[50];
+	char buf[80];
 	int icount = 1;
 	while (ptr->_clientNum < 4)
 	{
-		sprintf(buf, "Message: %d, player: %d, map: %d, mapSeed: %d", icount, ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
+		sprintf(buf, "room: %s, player: %d, map: %d, mapSeed: %d",ptr->_myname.c_str(), ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
 		++icount;
 		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
 		boost::this_thread::sleep(boost::posix_time::seconds(2));
@@ -454,12 +455,21 @@ void Room::initClient(Room* ptr)
 	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6001));
 	ip::udp::endpoint sender_endpoint;
 
-	char buf[50];
+	char buf[80];
 	while (1)
 	{
 		std::size_t bytes_transferred = socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		log("got %d bytes.", bytes_transferred);
 		log("the message: %s", buf);
+
+		std::string checkBuf(buf);
+		if (checkBuf.find("room") != std::string::npos)
+		{
+			auto posBegin = checkBuf.find(":");
+			auto posEnd = checkBuf.find(",");
+			auto roomName = checkBuf.substr(posBegin + 2, posEnd - posBegin - 2);
+			ptr->_rooms.pushBack(RoomItem(roomName, 2));
+		}
 		g_serverEndpoint = sender_endpoint;
 
 		std::string checkStr(buf);

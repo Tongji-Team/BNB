@@ -49,6 +49,8 @@ public:
 	boost::thread_group _threadGroup;
 
 	CREATE_FUNC(Room);
+
+	std::string _myname;
 private:
 	//µØÍ¼Ñ¡Ôñ¿Ø¼þ
 	cocos2d::Menu* _initMenu; 
