@@ -113,15 +113,6 @@ void Room::clickStartCallBack(Ref* obj, int mapNum)
 }
 void Room::clickCreatRoomCallBack(Ref* obj, int mapNum)
 {
-	//预留待补充
-	g_isClient = false;
-	g_playerID = 1;
-	makeMapSeed();
-
-	_threadGroup.create_thread(std::bind(&initBroadcast, this));
-	_threadGroup.create_thread(std::bind(&initReceiver, this));
-	_threadGroup.create_thread(std::bind(&initClient, this));
-
 	addSetRoomNameLayer();
 }
 
@@ -175,7 +166,14 @@ void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 	auto name = inputField->getString();
 	_rooms.pushBack(RoomItem(name, 1));  //向_rooms中添加新建的房间
 
+	g_isClient = false;
+	g_playerID = 1;
+	makeMapSeed();
+
 	//待补充：间新建房间的信息传递给其他服务器/客户端
+	_threadGroup.create_thread(std::bind(&initBroadcast, this));
+	_threadGroup.create_thread(std::bind(&initReceiver, this));
+	_threadGroup.create_thread(std::bind(&initClient, this));
 
 
 	removeSetRoomNameLayer();
