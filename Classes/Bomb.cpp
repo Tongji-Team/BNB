@@ -3,7 +3,7 @@
 
 bool Bomb::init(int power)
 {
-	this->initWithFile("image/sample.png");
+	this->initWithFile("animation/_bombExplo2.png");
 	this->_bombPower = power;
 	bool _bombAni = false;
 
@@ -44,15 +44,28 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 {
 	auto count = this->_bombPower;
 	bool up = true, down = true, left = true, right = true;
+
+	auto spriteCenter = Sprite::create("animation/_bombExplo2.png");
+	spriteCenter->setAnchorPoint(Vec2(0, 0));
+	spriteCenter->setPosition(0, 0);
+	this->addChild(spriteCenter, 100);
+	spriteCenter->setName("bomb");
+	auto size = spriteCenter->getContentSize();
+	auto body = PhysicsBody::createBox(Size(size.width, size.height));
+	body->setCollisionBitmask(0);
+	body->setContactTestBitmask(1);
+	spriteCenter->setPhysicsBody(body);
+
 	for (int i = 1; i <= count; ++i)
 	{
 		if (up)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
-				auto sprite = Sprite::create("image/sample.png");//炸弹效果
+				auto sprite = Sprite::create("animation/_bombExplo1.png");//炸弹效果
+				sprite->setRotation(90);
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(0, 80 * i);
+				sprite->setPosition(0, 32 * (i + 1));
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -76,9 +89,10 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y + i] != 1)
 			{
-				auto sprite = Sprite::create("image/sample.png");
+				auto sprite = Sprite::create("animation/_bombExplo1.png");
+				sprite->setRotation(90);
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(0, -80 * i);
+				sprite->setPosition(0, -32 * (i - 1));
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -101,9 +115,9 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x + i][coordPos.y] != 1)
 			{
-				auto sprite = Sprite::create("image/sample.png");
+				auto sprite = Sprite::create("animation/_bombExplo1.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(80 * i, 0);
+				sprite->setPosition(32 * i, 0);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
@@ -126,9 +140,9 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x - i][coordPos.y] != 1)
 			{
-				auto sprite = Sprite::create("image/sample.png");
+				auto sprite = Sprite::create("animation/_bombExplo1.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
-				sprite->setPosition(-80 * i, 0);
+				sprite->setPosition(-32 * i, 0);
 				this->addChild(sprite, 100);
 				sprite->setName("bomb");
 				auto size = sprite->getContentSize();
