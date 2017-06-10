@@ -161,36 +161,42 @@ void Room::clickRoomBackCallBack(Ref* obj)
 void Room::clickRoomListBackCallBack(Ref* obj)
 {
 	removeRoomList();
+	_threadGroup.interrupt_all();
 }
 
 void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 {
 	auto name = inputField->getString();
-	_myname = name;
-	_rooms.pushBack(RoomItem(name, 1));  //向_rooms中添加新建的房间
+	if (name != "")
+	{
+		_myname = name;
+		_rooms.pushBack(RoomItem(name, 1));  //向_rooms中添加新建的房间
 
-	g_isClient = false;
-	g_playerID = 1;
-	makeMapSeed();
+		g_isClient = false;
+		g_playerID = 1;
+		makeMapSeed();
 
-	//待补充：间新建房间的信息传递给其他服务器/客户端
-	_threadGroup.create_thread(std::bind(&initBroadcast, this));
-	_threadGroup.create_thread(std::bind(&initReceiver, this));
-	_threadGroup.create_thread(std::bind(&initClient, this));
+		//待补充：间新建房间的信息传递给其他服务器/客户端
+		_threadGroup.create_thread(std::bind(&initBroadcast, this));
+		_threadGroup.create_thread(std::bind(&initReceiver, this));
+		_threadGroup.create_thread(std::bind(&initClient, this));
 
 
-	removeSetRoomNameLayer();
-	addReadyRoomLayer(name);
+		removeSetRoomNameLayer();
+		addReadyRoomLayer(name);
+	}
 }
 
 void Room::clickSetRoomInputCallBack(Ref* obj, ui::TextField* inputField)
 {
 	inputField->setPlaceHolderColor(Color3B::WHITE);
+	inputField->setPlaceHolder(" ");
 }
 
 void Room::clickSetRoomBackCallBack(Ref* obj)
 {
 	removeSetRoomNameLayer();
+	_threadGroup.interrupt_all();
 }
 
 void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
@@ -209,7 +215,7 @@ void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
 	}
 	else
 	{
-
+		//
 	}	
 
 }
@@ -217,6 +223,7 @@ void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
 void Room::clickReadyRoomBackCallBack(Ref* obj)
 {
 	removeReadyRoomLayer();
+	_threadGroup.interrupt_all();
 }
 
 void Room::makeMapSeed()
