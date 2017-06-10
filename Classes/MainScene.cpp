@@ -92,7 +92,10 @@ void MainScene::addListener()
 		case 59:if (_player->getBombMaxNum() == _player->getBombPresentNum())
 					log("full bomb");
 				else
-					placeBomb(_player);
+				{
+					_player->_addBomb = true;
+					_player->_sendBomb = true;
+				}
 				break;
 		}
 
@@ -228,7 +231,6 @@ void MainScene::placeBomb(Player* player)
 	bomb->runAction(bomb->_animateBomb);
 	bomb->_bombAni= true;//炸弹动画
 
-	player->_addBomb = true;
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
 	CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
@@ -245,10 +247,17 @@ void MainScene::update(float dt)
 
 		if (!(*it)->_isAlive)
 		{
+			placeBomb(*it);
 			if (*it != _player)
 				(*it)->removeFromParent();
 			it = _playerGroup.erase(it);
 			continue;
+		}
+
+		if ((*it)->_addBomb)
+		{
+			placeBomb(*it);
+			(*it)->_addBomb = false;
 		}
 
 		auto checkPlayer = *it;
@@ -464,7 +473,7 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		else
 			checkPlayer->_right = false;
 		if (checkStr.find("b") != std::string::npos)//add bomb
-			ptr->placeBomb(checkPlayer);
+			checkPlayer->_addBomb = true;
 
 		auto posBegin = checkStr.find('[');
 		auto posEnd = checkStr.find(',', posBegin);
@@ -475,7 +484,6 @@ void MainScene::dealMessage(char* Buf, MainScene*ptr)
 		auto posY = atof(subY.c_str());
 		checkPlayer->_checkPoint = Point(posX, posY);
 	}
-
 }
 
 void MainScene::initServer(MainScene* ptr)
@@ -521,7 +529,7 @@ void MainScene::initClientSend(MainScene* ptr)
 	while (ptr->_player->_isAlive)
 	{
 		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down
-			|| ptr->_player->_addBomb)
+			|| ptr->_player->_sendBomb)
 		{
 			Vec2 pos = ptr->_player->getPosition();
 			sprintf(buf, "p%d", g_playerID);
@@ -537,7 +545,7 @@ void MainScene::initClientSend(MainScene* ptr)
 			if (ptr->_player->_addBomb)
 			{
 				sprintf(buf + strlen(buf), " b");
-				ptr->_player->_addBomb = false;
+				ptr->_player->_sendBomb = false;
 			}
 
 			sprintf(buf + strlen(buf), " [%.2f,%.2f]", pos.x, pos.y);

@@ -47,6 +47,7 @@ public:
 	bool _up;
 	bool _down;
 
+	bool _sendBomb;
 	bool _addBomb;
 	bool _isAlive;
 

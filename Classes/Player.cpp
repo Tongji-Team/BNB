@@ -13,6 +13,7 @@ bool Player::init()
 	_up = false;
 	_down = false;
 	_addBomb = false;
+	_sendBomb = false;
 	_isAlive = true;
 	_goDown = false;
 	_goLeft = false;
