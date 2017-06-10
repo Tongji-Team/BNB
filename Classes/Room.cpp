@@ -104,11 +104,13 @@ void Room::clickSelectedMenuCallBack(Ref* obj, int mapNum)
 
 void Room::clickStartCallBack(Ref* obj, int mapNum)
 {
+	if (_clicked)
+		return;
 	log("hello start");
 
 	auto scene = MainScene::createScene();
 	Director::getInstance()->replaceScene(scene);
-
+	_clicked = true;
 	_threadGroup.interrupt_all();
 }
 void Room::clickCreatRoomCallBack(Ref* obj, int mapNum)
@@ -496,4 +498,3 @@ void Room::initClient(Room* ptr)
 
 	socket.close();
 }
-

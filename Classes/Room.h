@@ -71,6 +71,8 @@ private:
 	RoomVec _rooms;//= RoomItem("try",1);
 	//find room 中被选中的房间
 	std::string _chosenRoom;
+
+	bool _clicked = false;
 };
 
 #endif 
