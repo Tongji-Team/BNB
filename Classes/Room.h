@@ -51,6 +51,8 @@ public:
 	CREATE_FUNC(Room);
 
 	std::string _myname;
+
+	bool _isReceiving = false;
 private:
 	//µØÍ¼Ñ¡Ôñ¿Ø¼þ
 	cocos2d::Menu* _initMenu; 

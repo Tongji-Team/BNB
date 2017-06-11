@@ -123,7 +123,11 @@ void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 	//预留待补充
 	g_isClient = true;
 
-	_threadGroup.create_thread(std::bind(&initClient, this));
+	if (!this->_isReceiving)
+	{
+		this->_isReceiving = true;
+		_threadGroup.create_thread(std::bind(&initClient, this));
+	}
 	addRomeList();
 }
 
@@ -139,6 +143,7 @@ void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
 		{
 			std::string title = listText->getString(); 
 			_chosenRoom = std::string(title, 0, title.find(' ')); //设置被选中的房间
+			log("%s", _chosenRoom.c_str());
 			listText->setFontSize(30);
 			listText->setTextColor(Color4B::BLACK);
 		}
@@ -161,7 +166,6 @@ void Room::clickRoomBackCallBack(Ref* obj)
 void Room::clickRoomListBackCallBack(Ref* obj)
 {
 	removeRoomList();
-	_threadGroup.interrupt_all();
 }
 
 void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
@@ -482,6 +486,7 @@ void Room::initClient(Room* ptr)
 		std::string checkStr(buf);
 		if (checkStr.find("success") != std::string::npos)
 		{
+			log("success");
 			if (checkStr.rfind("player1") != std::string::npos)
 				g_playerID = 1;
 			else if (checkStr.rfind("player2") != std::string::npos)
@@ -499,13 +504,14 @@ void Room::initClient(Room* ptr)
 			return;
 		}
 
-		if (ptr->_isOwner || ptr->_joinRoom&&checkBuf.find(ptr->_chosenRoom) != std::string::npos)
+		if (ptr->_isOwner || (ptr->_joinRoom&&checkBuf.find(ptr->_chosenRoom) != std::string::npos))
 		{
 			char *message = "connect";
 			ip::udp::socket sender(io_service, ip::udp::endpoint(ip::udp::v4(), 6005));
 			ip::udp::endpoint server_point(sender_endpoint.address(), 6003);
 			sender.send_to(boost::asio::buffer(message, strlen(message) + 1), server_point);
 			sender.close();
+			log("connect");
 			ptr->_joinRoom = false;
 		}
 
