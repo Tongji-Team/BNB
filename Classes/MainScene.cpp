@@ -227,10 +227,7 @@ void MainScene::placeBomb(Player* player)
 	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
 	auto bomb = player->getBomb();
 	this->addChild(bomb);
-
 	bomb->runAction(bomb->_animateBomb);
-	bomb->_bombAni= true;//炸弹动画
-
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
 	CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
@@ -248,8 +245,12 @@ void MainScene::update(float dt)
 		if (!(*it)->_isAlive)
 		{
 			placeBomb(*it);
-			if (*it != _player)
-				(*it)->removeFromParent();
+
+			(*it)->runAction((*it)->_animateDeath);
+			DelayTime* delayAction = DelayTime::create(1.5f);
+			CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(Player::removeFromParent, *it));
+			this->runAction(Sequence::create(delayAction, callFuncRemove, NULL));
+				
 			it = _playerGroup.erase(it);
 			continue;
 		}
@@ -558,9 +559,8 @@ void MainScene::initClientSend(MainScene* ptr)
 			down = ptr->_player->_down;
 		}
 	}
-	boost::this_thread::sleep(boost::posix_time::seconds(2));
+
 	ptr->_listener_key->release();
-	ptr->_player->removeFromParent();
 	ptr->_player = NULL;
 	socket.close();
 }

@@ -54,7 +54,9 @@ public:
 	RepeatForever* _animateLeft;
 	RepeatForever* _animateRight;
 	RepeatForever* _animateUp;
-	RepeatForever* _animateDown;//进行动画选择
+	RepeatForever* _animateDown;
+	Repeat* _animateDeath;//进行动画选择
+	
 
 	bool _goLeft;//描述是否在播放动画
 	bool _goRight;

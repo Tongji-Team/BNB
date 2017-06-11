@@ -62,6 +62,21 @@ bool Player::init()
 	_animateDown = RepeatForever::create(Animate::create(animationDown));
 	_animateDown->retain();
 
+	//以下为人物死亡动画
+	auto animationDeath = Animation::create();
+
+	SpriteFrameCache* frameDeath = SpriteFrameCache::getInstance();
+	frameDeath->addSpriteFramesWithFile("animation/_playerDeath.plist", "animation/_playerDeath.png");
+	for (int i = 1; i < 8; ++i)
+	{
+		auto frameDie = frameDeath->getSpriteFrameByName(StringUtils::format("_playerDeath%d.png", i));
+
+		animationDeath->addSpriteFrame(frameDie);
+	}
+	animationDeath->setDelayPerUnit(3.0f / 15.0f);
+	_animateDeath = Repeat::create(Animate::create(animationDeath), 1);
+	_animateDeath->retain();
+
 	this->initWithFile("image/player.png");
 
 	auto size = this->getContentSize();
