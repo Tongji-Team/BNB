@@ -175,6 +175,7 @@ void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 		g_isClient = false;
 		g_playerID = 1;
 		makeMapSeed();
+		_isOwner = true;
 
 		//待补充：间新建房间的信息传递给其他服务器/客户端
 		_threadGroup.create_thread(std::bind(&initBroadcast, this));
@@ -207,6 +208,7 @@ void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
 	{
 		int playerNum = room->getPlayerNum() + 1;
 		room->setPlayerNum(playerNum); //改变房间中玩家数量信息
+		_joinRoom = true;
 		
 		//待补充：将房间玩家数量改变的信息传给其他服务器/客户端
 
@@ -457,8 +459,6 @@ void Room::initClient(Room* ptr)
 	namespace ip = boost::asio::ip;
 	boost::asio::io_service io_service;
 
-	bool connected = false;
-
 	ip::udp::socket socket(io_service, ip::udp::endpoint(ip::udp::v4(), 6001));
 	ip::udp::endpoint sender_endpoint;
 
@@ -499,14 +499,14 @@ void Room::initClient(Room* ptr)
 			return;
 		}
 
-		if (!connected)
+		if (ptr->_isOwner || ptr->_joinRoom&&checkBuf.find(ptr->_chosenRoom) != std::string::npos)
 		{
 			char *message = "connect";
 			ip::udp::socket sender(io_service, ip::udp::endpoint(ip::udp::v4(), 6005));
 			ip::udp::endpoint server_point(sender_endpoint.address(), 6003);
 			sender.send_to(boost::asio::buffer(message, strlen(message) + 1), server_point);
 			sender.close();
-			connected = true;
+			ptr->_joinRoom = false;
 		}
 
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
