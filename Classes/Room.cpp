@@ -419,7 +419,7 @@ void Room::initBroadcast(Room* ptr)
 
 	char buf[80];
 	int icount = 1;
-	while (ptr->_clientNum < 4)
+	while (ptr->_clientNum < 5)
 	{
 		sprintf(buf, "room: %s, player: %d, map: %d, mapSeed: %d",ptr->_myname.c_str(), ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
 		++icount;
@@ -440,9 +440,9 @@ void Room::initReceiver(Room* ptr)
 	char buf[50];
 	while (ptr->_clientNum < 5)
 	{
+		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		if (std::string(buf) != "connect")
 			continue;
-		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		ip::udp::endpoint client_point(sender_endpoint.address(), 6001);
 		g_clientEndpoint.push_back(sender_endpoint);
 		ptr->_clientNum++;
@@ -523,6 +523,7 @@ void Room::initClient(Room* ptr)
 			sender.close();
 			log("connect");
 			ptr->_joinRoom = false;
+			ptr->_isOwner = false;
 		}
 
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
