@@ -440,6 +440,8 @@ void Room::initReceiver(Room* ptr)
 	char buf[50];
 	while (ptr->_clientNum < 5)
 	{
+		if (std::string(buf) != "connect")
+			continue;
 		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
 		ip::udp::endpoint client_point(sender_endpoint.address(), 6001);
 		g_clientEndpoint.push_back(sender_endpoint);
@@ -479,9 +481,14 @@ void Room::initClient(Room* ptr)
 			auto posBegin = checkBuf.find(":");
 			auto posEnd = checkBuf.find(",");
 			auto roomName = checkBuf.substr(posBegin + 2, posEnd - posBegin - 2);
+
+			posBegin = checkBuf.find(":", posEnd);
+			auto subNum = checkBuf.substr(posBegin + 2, 1);
+			auto playerNum = atoi(subNum.c_str());
+
 			if (ptr->_rooms.getRoomByName(roomName) == ptr->_rooms.end())
 			{
-				ptr->_rooms.pushBack(RoomItem(roomName, 2));
+				ptr->_rooms.pushBack(RoomItem(roomName, playerNum));
 			}
 		}
 		g_serverEndpoint = sender_endpoint;
