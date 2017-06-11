@@ -82,11 +82,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->runWithScene(scene);
 
     CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Music/music.wav");
-	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/get.wav");
-	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/boom.wav");
-	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/readygo.wav");
-	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/win.wav");
-	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/die.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Music/play.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/get.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/boom.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/readygo.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/win.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/die.wav");
+    CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Music/lose.wav");
     
     return true;
 }
