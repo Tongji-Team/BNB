@@ -479,7 +479,10 @@ void Room::initClient(Room* ptr)
 			auto posBegin = checkBuf.find(":");
 			auto posEnd = checkBuf.find(",");
 			auto roomName = checkBuf.substr(posBegin + 2, posEnd - posBegin - 2);
-			ptr->_rooms.pushBack(RoomItem(roomName, 2));
+			if (ptr->_rooms.getRoomByName(roomName) == ptr->_rooms.end())
+			{
+				ptr->_rooms.pushBack(RoomItem(roomName, 2));
+			}
 		}
 		g_serverEndpoint = sender_endpoint;
 
