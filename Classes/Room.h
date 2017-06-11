@@ -15,6 +15,8 @@ public:
 
 	virtual bool init();
 
+//	void onEnter() override;
+
 	void clickInitMenuCallBack(Ref* obj);
 	void clickSelectedMenuCallBack(Ref* obj,int mapNum);
 	void clickCreatRoomCallBack(Ref* obj,int mapNum);
@@ -23,10 +25,12 @@ public:
 	void clickRoomListTextCallBack(Ref* obj, cocos2d::ui::ListView* list,int tag);
 	void clickRoomBackCallBack(Ref* obj);
 	void clickRoomListBackCallBack(Ref* obj);
+	void clickRoomListRefreshCallBack(Ref* obj);
+	void clickJoinCallBack(Ref* obj,std::string& roomName);
 	void clickSetRoomOkCallBack(Ref* obj,cocos2d::ui::TextField* inputField);
 	void clickSetRoomInputCallBack(Ref* obj, cocos2d::ui::TextField* inputField);
 	void clickSetRoomBackCallBack(Ref* obj);
-	void clickJoinCallBack(Ref* obj,std::string& roomName);
+	
 	void clickReadyRoomBackCallBack(Ref* obj);
 
 	void addSelectedMenu();

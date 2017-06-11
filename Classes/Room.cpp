@@ -10,8 +10,8 @@ using namespace cocostudio;
 USING_NS_CC;
 
 bool g_isClient;
-std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//ç”¨äºå­˜æ”¾è¿æ¥çš„å®¢æˆ·ç«¯çš„åœ°å€
-boost::asio::ip::udp::endpoint g_serverEndpoint;//ç”¨äºå­˜æ”¾æœåŠ¡å™¨çš„åœ°å€
+std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//ÓÃÓÚ´æ·ÅÁ¬½ÓµÄ¿Í»§¶ËµÄµØÖ·
+boost::asio::ip::udp::endpoint g_serverEndpoint;//ÓÃÓÚ´æ·Å·şÎñÆ÷µÄµØÖ·
 int g_playerID = 1;
 int g_mapSeed = 0;
 int g_mapName = 0;
@@ -77,6 +77,8 @@ bool Room::init()
 	return true;
 }
 
+//void Room::onEnter()
+
 void Room::clickInitMenuCallBack(Ref* obj)
 {
 	log("initMenu clicked");
@@ -120,7 +122,7 @@ void Room::clickCreatRoomCallBack(Ref* obj, int mapNum)
 
 void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 {
-	//é¢„ç•™å¾…è¡¥å……
+	//Ô¤Áô´ı²¹³ä
 	g_isClient = true;
 
 	if (!this->_isReceiving)
@@ -133,7 +135,7 @@ void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 
 void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
 {
-	//ä¿¡æ¯äº¤äº’å¾…è¡¥å……
+	//ĞÅÏ¢½»»¥´ı²¹³ä
 	log("click room list text");
 	for (int i = 10; i < 15; ++i)
 	{
@@ -142,7 +144,7 @@ void Room::clickRoomListTextCallBack(Ref* obj, ui::ListView* list, int tag)
 		if (i == tag)
 		{
 			std::string title = listText->getString(); 
-			_chosenRoom = std::string(title, 0, title.find(' ')); //è®¾ç½®è¢«é€‰ä¸­çš„æˆ¿é—´
+			_chosenRoom = std::string(title, 0, title.find(' ')); //ÉèÖÃ±»Ñ¡ÖĞµÄ·¿¼ä
 			log("%s", _chosenRoom.c_str());
 			listText->setFontSize(30);
 			listText->setTextColor(Color4B::BLACK);
@@ -168,20 +170,34 @@ void Room::clickRoomListBackCallBack(Ref* obj)
 	removeRoomList();
 }
 
+void Room::clickRoomListRefreshCallBack(Ref* obj)
+{
+	removeRoomList();
+
+	g_isClient = true;
+
+	if (!this->_isReceiving)
+	{
+		this->_isReceiving = true;
+		_threadGroup.create_thread(std::bind(&initClient, this));
+	}
+	addRomeList();
+
+}
 void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 {
 	auto name = inputField->getString();
 	if (name != "")
 	{
 		_myname = name;
-		_rooms.pushBack(RoomItem(name, 1));  //å‘_roomsä¸­æ·»åŠ æ–°å»ºçš„æˆ¿é—´
+		_rooms.pushBack(RoomItem(name, 1));  //Ïò_roomsÖĞÌí¼ÓĞÂ½¨µÄ·¿¼ä
 
 		g_isClient = false;
 		g_playerID = 1;
 		makeMapSeed();
 		_isOwner = true;
 
-		//å¾…è¡¥å……ï¼šé—´æ–°å»ºæˆ¿é—´çš„ä¿¡æ¯ä¼ é€’ç»™å…¶ä»–æœåŠ¡å™¨/å®¢æˆ·ç«¯
+		//´ı²¹³ä£º¼äĞÂ½¨·¿¼äµÄĞÅÏ¢´«µİ¸øÆäËû·şÎñÆ÷/¿Í»§¶Ë
 		_threadGroup.create_thread(std::bind(&initBroadcast, this));
 		_threadGroup.create_thread(std::bind(&initReceiver, this));
 		_threadGroup.create_thread(std::bind(&initClient, this));
@@ -211,10 +227,10 @@ void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
 	if (room != _rooms.end())
 	{
 		int playerNum = room->getPlayerNum() + 1;
-		room->setPlayerNum(playerNum); //æ”¹å˜æˆ¿é—´ä¸­ç©å®¶æ•°é‡ä¿¡æ¯
+		room->setPlayerNum(playerNum); //¸Ä±ä·¿¼äÖĞÍæ¼ÒÊıÁ¿ĞÅÏ¢
 		_joinRoom = true;
 		
-		//å¾…è¡¥å……ï¼šå°†æˆ¿é—´ç©å®¶æ•°é‡æ”¹å˜çš„ä¿¡æ¯ä¼ ç»™å…¶ä»–æœåŠ¡å™¨/å®¢æˆ·ç«¯
+		//´ı²¹³ä£º½«·¿¼äÍæ¼ÒÊıÁ¿¸Ä±äµÄĞÅÏ¢´«¸øÆäËû·şÎñÆ÷/¿Í»§¶Ë
 
 		removeRoomList();
 		addReadyRoomLayer(_chosenRoom);
@@ -277,33 +293,35 @@ void Room::changeMapWindow()
 void Room::addRomeList()
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-	//è®¾ç½®è™šåŒ–èƒŒæ™¯
+	//ÉèÖÃĞé»¯±³¾°
 	_backColor = LayerColor::create();
 	_backColor->initWithColor(Color4B(162, 162, 162, 128));
-	//è·å–æ§ä»¶
+	//»ñÈ¡¿Ø¼ş
 	_roomListLayer = CSLoader::getInstance()->createNode("cocosstudio/roomListLayer.csb");
 	auto roomListBack = dynamic_cast<ui::ImageView*>(_roomListLayer->getChildByName("roomListBack"));
 	auto roomListMenu = dynamic_cast<ui::ListView*>(roomListBack->getChildByName("roomListMenu"));
 	auto joinButton = dynamic_cast<ui::Button*>(roomListBack->getChildByName("joinButton"));
 	auto backButton = dynamic_cast<ui::Button*>(roomListBack->getChildByName("backButton"));
+	auto refreshButton = dynamic_cast<ui::Button*>(roomListBack->getChildByName("refreshButton"));
 	for (int tag = 10; tag < 15; ++tag)
 	{
 		auto listText = dynamic_cast<ui::Text*>(roomListMenu->getChildByTag(tag));
 		listText->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListTextCallBack, this, roomListMenu, tag));
 	}
-	//è®¾ç½®æ§ä»¶å±æ€§
+	//ÉèÖÃ¿Ø¼şÊôĞÔ
 	roomListBack->loadTexture("image/roomListBack.png");
 
 	joinButton->addTouchEventListener(CC_CALLBACK_1(Room::clickJoinCallBack, this, _chosenRoom));
 	joinButton->setTitleFontName("fonts/Marker Felt.ttf");
 	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListBackCallBack, this));
 	backButton->setTitleFontName("fonts/Marker Felt.ttf");
-
+	refreshButton->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListRefreshCallBack, this));
+	refreshButton->setTitleFontName("fonts/Marker Felt.ttf");
 	/*
-	 *è®¾ç½®æˆ¿é—´åˆ—è¡¨ä¿¡æ¯
-	 *æš‚æ‹Ÿé€šè¿‡Roomçš„privateå˜é‡_roomsè·å–æ‰€æœ‰å·²ç»åˆ›å»ºçš„æˆ¿é—´ä¿¡æ¯
+	 *ÉèÖÃ·¿¼äÁĞ±íĞÅÏ¢
+	 *ÔİÄâÍ¨¹ıRoomµÄprivate±äÁ¿_rooms»ñÈ¡ËùÓĞÒÑ¾­´´½¨µÄ·¿¼äĞÅÏ¢
 	 */
-	int roomNum = _rooms.size();  //è·å–æˆ¿é—´æ•°é‡
+	int roomNum = _rooms.size();  //»ñÈ¡·¿¼äÊıÁ¿
 	for (int i = 0; i < roomNum; ++i)
 	{
 		auto listText = dynamic_cast<ui::Text*>(roomListMenu->getChildByTag(10 + i));
@@ -359,7 +377,7 @@ void Room::addReadyRoomLayer(const std::string& name)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 
-	//è¯»å–æ§ä»¶
+	//¶ÁÈ¡¿Ø¼ş
 	_readyRoomLayer = CSLoader::getInstance()->createNode("cocosstudio/readyRoomLayer.csb");
 	auto readyRoomBack = dynamic_cast<ui::ImageView*>(_readyRoomLayer->getChildByName("readyRoomBack"));
 	auto roomState = dynamic_cast<ui::Layout*>(readyRoomBack->getChildByName("roomState"));
@@ -368,7 +386,7 @@ void Room::addReadyRoomLayer(const std::string& name)
 	auto nameText = dynamic_cast<ui::Text*>(roomState->getChildByName("name"));
 	auto playerText = dynamic_cast<ui::Text*>(roomState->getChildByName("player"));
 
-	//è®¾ç½®æ§ä»¶å±æ€§
+	//ÉèÖÃ¿Ø¼şÊôĞÔ
 	readyRoomBack->loadTexture("image/readyRoomBack.png");
 
 	startButton->setTitleFontSize(40);
@@ -378,18 +396,18 @@ void Room::addReadyRoomLayer(const std::string& name)
 	backButton->setTitleFontName("fonts/Marker Felt.ttf");
 	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickReadyRoomBackCallBack, this));
 
-	//æ·»åŠ è®¾ç½®åœ°å›¾ä¿¡æ¯
+	//Ìí¼ÓÉèÖÃµØÍ¼ĞÅÏ¢
 	__String* mapName = __String::createWithFormat("image/map%d.png", _currentMapTag);
 	auto mapWindow = Sprite::create(mapName->getCString());
 	mapWindow->setPosition(visibleSize.width*0.3, visibleSize.height*0.6);
 	_readyRoomLayer->addChild(mapWindow, 1);
 
 	/*
-	 *è®¾ç½®è¯¥æˆ¿é—´åç§°åŠç©å®¶æ•°é‡
-	 *æš‚æ‹Ÿé€šè¿‡Roomçš„privateå˜é‡_roomsæŸ¥æ‰¾è¯¥æˆ¿é—´ä¿¡æ¯
-	 *ç©å®¶æ•°é‡ä¿¡æ¯å½“å‰ä¸ºé™æ€é‡,ä¸æœåŠ¡å™¨çš„å®æ—¶ä¿¡æ¯äº¤äº’å¾…æ·»åŠ ã€‚
+	 *ÉèÖÃ¸Ã·¿¼äÃû³Æ¼°Íæ¼ÒÊıÁ¿
+	 *ÔİÄâÍ¨¹ıRoomµÄprivate±äÁ¿_rooms²éÕÒ¸Ã·¿¼äĞÅÏ¢
+	 *Íæ¼ÒÊıÁ¿ĞÅÏ¢µ±Ç°Îª¾²Ì¬Á¿,Óë·şÎñÆ÷µÄÊµÊ±ĞÅÏ¢½»»¥´ıÌí¼Ó¡£
 	 */
-	auto room = _rooms.getRoomByName(name);  //è·å–è¯¥æˆ¿é—´å¯¹è±¡
+	auto room = _rooms.getRoomByName(name);  //»ñÈ¡¸Ã·¿¼ä¶ÔÏó
 	if (room != _rooms.end())
 	{
 		nameText->setString(room->getRoomName());
@@ -419,7 +437,7 @@ void Room::initBroadcast(Room* ptr)
 
 	char buf[80];
 	int icount = 1;
-	while (ptr->_clientNum < 5)
+	while (ptr->_clientNum < 4)
 	{
 		sprintf(buf, "room: %s, player: %d, map: %d, mapSeed: %d",ptr->_myname.c_str(), ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
 		++icount;
@@ -452,6 +470,7 @@ void Room::initReceiver(Room* ptr)
 		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
 		sprintf(sendBuf, "%d", g_mapSeed);
 		socket.send_to(boost::asio::buffer(sendBuf, strlen(sendBuf) + 1), client_point);
+		//
 
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
 		log("reveiver running");
