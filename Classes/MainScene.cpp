@@ -240,8 +240,12 @@ void MainScene::update(float dt)
 	for (Vector<Player*>::iterator it = _playerGroup.begin(); it != _playerGroup.end();)
 	{
 		if (_playerGroup.size() == 1)
+		{
 			break;//产生获胜条件了
-
+		        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/win.wav", false);
+		        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/lose.wav", false);
+		}	
+			
 		if (!(*it)->_isAlive)
 		{
 			placeBomb(*it);
