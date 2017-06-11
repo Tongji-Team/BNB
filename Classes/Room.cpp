@@ -173,17 +173,9 @@ void Room::clickRoomListBackCallBack(Ref* obj)
 void Room::clickRoomListRefreshCallBack(Ref* obj)
 {
 	removeRoomList();
-
-	g_isClient = true;
-
-	if (!this->_isReceiving)
-	{
-		this->_isReceiving = true;
-		_threadGroup.create_thread(std::bind(&initClient, this));
-	}
 	addRomeList();
-
 }
+
 void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 {
 	auto name = inputField->getString();
