@@ -125,9 +125,9 @@ void Room::clickFindRoomCallBack(Ref* obj, int mapNum)
 	//预留待补充
 	g_isClient = true;
 
-	if (!this->_isReceiving)
+	if (!this->_clientRunning)
 	{
-		this->_isReceiving = true;
+		this->_clientRunning = true;
 		_threadGroup.create_thread(std::bind(&initClient, this));
 	}
 	addRomeList();
@@ -188,11 +188,20 @@ void Room::clickSetRoomOkCallBack(Ref* obj,ui::TextField* inputField)
 		g_playerID = 1;
 		makeMapSeed();
 		_isOwner = true;
+		_clientNum = 0;
 
 		//待补充：间新建房间的信息传递给其他服务器/客户端
 		_threadGroup.create_thread(std::bind(&initBroadcast, this));
-		_threadGroup.create_thread(std::bind(&initReceiver, this));
-		_threadGroup.create_thread(std::bind(&initClient, this));
+		if (!this->_isReceiving)
+		{
+			this->_isReceiving = true;
+			_threadGroup.create_thread(std::bind(&initReceiver, this));
+		}
+		if (!this->_clientRunning)
+		{
+			this->_clientRunning = true;
+			_threadGroup.create_thread(std::bind(&initClient, this));
+		}
 
 
 		removeSetRoomNameLayer();
@@ -209,7 +218,7 @@ void Room::clickSetRoomInputCallBack(Ref* obj, ui::TextField* inputField)
 void Room::clickSetRoomBackCallBack(Ref* obj)
 {
 	removeSetRoomNameLayer();
-	_threadGroup.interrupt_all();
+	//_threadGroup.interrupt_all();
 }
 
 void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
@@ -237,7 +246,7 @@ void Room::clickJoinCallBack(Ref* obj, std::string& roomName)
 void Room::clickReadyRoomBackCallBack(Ref* obj)
 {
 	removeReadyRoomLayer();
-	_threadGroup.interrupt_all();
+	this->_broadRunning = false;
 }
 
 void Room::makeMapSeed()
@@ -427,9 +436,11 @@ void Room::initBroadcast(Room* ptr)
 	socket.set_option(boost::asio::socket_base::broadcast(true));
 	ip::udp::endpoint broadcast_endpoint(ip::address_v4::broadcast(), 6001);
 
+	ptr->_broadRunning = true;
+
 	char buf[80];
 	int icount = 1;
-	while (ptr->_clientNum < 4)
+	while (ptr->_clientNum < 4 && ptr->_broadRunning)
 	{
 		sprintf(buf, "room: %s, player: %d, map: %d, mapSeed: %d",ptr->_myname.c_str(), ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
 		++icount;

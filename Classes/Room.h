@@ -56,7 +56,9 @@ public:
 
 	std::string _myname;
 
+	bool _broadRunning = false;
 	bool _isReceiving = false;
+	bool _clientRunning = false;
 private:
 	//µØÍ¼Ñ¡Ôñ¿Ø¼þ
 	cocos2d::Menu* _initMenu; 
