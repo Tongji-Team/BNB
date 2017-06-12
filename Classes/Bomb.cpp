@@ -1,5 +1,7 @@
 #include "MainScene.h"
 #include "Bomb.h"
+#include "SimpleAudioEngine.h"
+using namespace CocosDenshion;
 
 bool Bomb::init(int power)
 {
@@ -55,14 +57,15 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 	body->setCollisionBitmask(0);
 	body->setContactTestBitmask(1);
 	spriteCenter->setPhysicsBody(body);
-
+        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/get.wav", false);
+	
 	for (int i = 1; i <= count; ++i)
 	{
 		if (up)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
-				auto sprite = Sprite::create("animation/_bombExplo1.png");//ը��Ч��
+				auto sprite = Sprite::create("animation/_bombExplo1.png");//Õ¨µ¯Ð§¹û
 				sprite->setRotation(90);
 				sprite->setAnchorPoint(Vec2(0, 0));
 				sprite->setPosition(0, 32 * (i + 1));
