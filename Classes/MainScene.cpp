@@ -12,6 +12,7 @@ extern int g_playerID;
 extern std::vector<boost::asio::ip::udp::endpoint> g_clientEndpoint;//用于存放连接的客户端的地址
 extern boost::asio::ip::udp::endpoint g_serverEndpoint;//用于存放服务器的地址
 extern int g_mapSeed;
+extern int g_mapName;
 
 #define deltaX 240
 #define deltaY 560
@@ -132,7 +133,19 @@ Point MainScene::getBombPosition(Point coord)
 
 bool MainScene::addMap()
 {
-	_tileMap = CCTMXTiledMap::create("maps/Tiled_map.tmx");
+	switch (g_mapName)
+	{
+	case 1:
+		_tileMap = CCTMXTiledMap::create("maps/Tiled_map1.tmx");
+		break;
+	case 2:
+		_tileMap = CCTMXTiledMap::create("maps/Tiled_map2.tmx");
+		break;
+	default:
+		_tileMap = CCTMXTiledMap::create("maps/Tiled_map0.tmx");
+		break;
+	}
+
 	if (_tileMap == nullptr)
 	{
 		log("failed to open the map");

@@ -516,6 +516,7 @@ void Room::initClient(Room* ptr)
 			{
 				ptr->_rooms.getRoomByName(roomName)->setPlayerNum(playerNum);
 			}
+
 		}
 		g_serverEndpoint = sender_endpoint;
 
@@ -550,6 +551,10 @@ void Room::initClient(Room* ptr)
 			log("connect");
 			ptr->_joinRoom = false;
 			ptr->_isOwner = false;
+
+			auto posBegin = checkBuf.find("map");
+			auto mapNum = checkBuf.substr(posBegin + 5, 1);
+			g_mapName = atoi(mapNum.c_str());
 		}
 
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
