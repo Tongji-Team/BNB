@@ -63,7 +63,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 	{
 		if (up)
 		{
-			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
+			if (coordPos.y - i > -1 && ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
 				auto sprite = Sprite::create("animation/_bombExplo1.png");//炸弹爆炸动画
 				sprite->setRotation(90);
@@ -90,7 +90,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		}
 		if (down)
 		{
-			if (ptr->_mapProp[coordPos.x][coordPos.y + i] != 1)
+			if (coordPos.y + i < 15 && ptr->_mapProp[coordPos.x][coordPos.y + i] != 1)
 			{
 				auto sprite = Sprite::create("animation/_bombExplo1.png");
 				sprite->setRotation(90);
@@ -116,7 +116,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		}
 		if (right)
 		{
-			if (ptr->_mapProp[coordPos.x + i][coordPos.y] != 1)
+			if (coordPos.x + i < 15 && ptr->_mapProp[coordPos.x + i][coordPos.y] != 1)
 			{
 				auto sprite = Sprite::create("animation/_bombExplo1.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
@@ -141,7 +141,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		}
 		if (left)
 		{
-			if (ptr->_mapProp[coordPos.x - i][coordPos.y] != 1)
+			if (coordPos.x - i > -1 && ptr->_mapProp[coordPos.x - i][coordPos.y] != 1)
 			{
 				auto sprite = Sprite::create("animation/_bombExplo1.png");
 				sprite->setAnchorPoint(Vec2(0, 0));
