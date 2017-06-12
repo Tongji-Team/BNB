@@ -57,7 +57,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 	body->setCollisionBitmask(0);
 	body->setContactTestBitmask(1);
 	spriteCenter->setPhysicsBody(body);
-        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/get.wav", false);
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/boom.wav", false);
 	
 	for (int i = 1; i <= count; ++i)
 	{
@@ -65,7 +65,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 		{
 			if (ptr->_mapProp[coordPos.x][coordPos.y - i] != 1)
 			{
-				auto sprite = Sprite::create("animation/_bombExplo1.png");//Õ¨µ¯Ð§¹û
+				auto sprite = Sprite::create("animation/_bombExplo1.png");//炸弹爆炸动画
 				sprite->setRotation(90);
 				sprite->setAnchorPoint(Vec2(0, 0));
 				sprite->setPosition(0, 32 * (i + 1));
