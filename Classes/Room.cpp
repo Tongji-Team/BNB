@@ -313,11 +313,15 @@ void Room::addRomeList()
 	roomListBack->loadTexture("image/roomListBack.png");
 
 	joinButton->addTouchEventListener(CC_CALLBACK_1(Room::clickJoinCallBack, this, _chosenRoom));
-	joinButton->setTitleFontName("fonts/Marker Felt.ttf");
+	joinButton->setTitleFontSize(30);
+	//	joinButton->setTitleFontName("fonts/Marker Felt.ttf");
 	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListBackCallBack, this));
-	backButton->setTitleFontName("fonts/Marker Felt.ttf");
+	backButton->setTitleFontSize(30);
+	//	backButton->setTitleFontName("fonts/Marker Felt.ttf");
 	refreshButton->addTouchEventListener(CC_CALLBACK_1(Room::clickRoomListRefreshCallBack, this));
-	refreshButton->setTitleFontName("fonts/Marker Felt.ttf");
+	refreshButton->setTitleFontSize(30);
+	//	refreshButton->setTitleFontName("fonts/Marker Felt.ttf");
+	
 	/*
 	 *设置房间列表信息
 	 *暂拟通过Room的private变量_rooms获取所有已经创建的房间信息
@@ -349,20 +353,20 @@ void Room::addSetRoomNameLayer()
 	auto backImage = dynamic_cast<ui::ImageView*>(_setRoomNameLayer->getChildByName("backImage"));
 	auto textBack = dynamic_cast<ui::ImageView*>(backImage->getChildByName("textBack"));
 	auto inputField = dynamic_cast<ui::TextField*>(textBack->getChildByName("inputField"));
-	auto okButton = dynamic_cast<ui::Text*>(backImage->getChildByName("ok"));
-	auto backButton = dynamic_cast<ui::Text*>(backImage->getChildByName("back"));
+	auto okButton = dynamic_cast<ui::Button*>(backImage->getChildByName("okButton"));
+	auto backButton = dynamic_cast<ui::Button*>(backImage->getChildByName("backButton"));
 
 	textBack->loadTexture("image/textBack.png");
 	inputField->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomInputCallBack,this,inputField));
 
 	backImage->loadTexture("image/setRoomBack.png");
 	
-	okButton->setFontSize(30);
-	okButton->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomOkCallBack,this,inputField));
-	okButton->setFontName("fonts/Marker Felt.ttf");
-	backButton->setFontSize(30);
+	okButton->setTitleFontSize(30);
+	okButton->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomOkCallBack, this, inputField));
+	//	okButton->setTitleFontName("fonts/Marker Felt.ttf");
+	backButton->setTitleFontSize(30);
 	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickSetRoomBackCallBack, this));
-	backButton->setFontName("fonts/Marker Felt.ttf");
+	//	backButton->setTitleFontName("fonts/Marker Felt.ttf");
 
 	this->addChild(_backColor);
 	this->addChild(_setRoomNameLayer, 1);
@@ -390,11 +394,13 @@ void Room::addReadyRoomLayer(const std::string& name)
 	//设置控件属性
 	readyRoomBack->loadTexture("image/readyRoomBack.png");
 
-	startButton->setTitleFontSize(40);
-	startButton->setTitleFontName("fonts/Marker Felt.ttf");
+	startButton->setTitleFontSize(30);
+	startButton->setTitleColor(Color3B::BLACK);
+	//	startButton->setTitleFontName("fonts/Marker Felt.ttf");
 	startButton->addTouchEventListener(CC_CALLBACK_1(Room::clickStartCallBack, this, _currentMapTag));
-	backButton->setTitleFontSize(40);
-	backButton->setTitleFontName("fonts/Marker Felt.ttf");
+	backButton->setTitleFontSize(30);
+	backButton->setTitleColor(Color3B::BLACK);
+	//	backButton->setTitleFontName("fonts/Marker Felt.ttf");
 	backButton->addTouchEventListener(CC_CALLBACK_1(Room::clickReadyRoomBackCallBack, this));
 
 	//添加设置地图信息
