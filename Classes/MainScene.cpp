@@ -254,9 +254,18 @@ void MainScene::update(float dt)
 	{
 		if (_playerGroup.size() == 1)
 		{
-			break;//产生获胜条件了
-		        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/win.wav", false);
-		        CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/lose.wav", false);
+			if (_playerGroup.at(0) == _player)//我方获胜
+			{
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/win.wav", false);
+				_playerGroup.popBack();
+				break;
+			}
+			else
+			{
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/lose.wav", false);
+				_playerGroup.popBack();
+				break;
+			}
 		}	
 			
 		if (!(*it)->_isAlive)
