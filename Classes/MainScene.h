@@ -32,6 +32,12 @@ public:
 
 	void addItem();
 
+	void addWinWindow();  //获胜窗口
+
+	void addLoseWindow();  //失败窗口
+
+	void clickEndOkCallBack(Ref* obj);
+
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
 
 	bool checkCollidable(Point, Player*);
@@ -67,6 +73,8 @@ private:
 	EventListenerPhysicsContact* _listener_contact;
 
 	boost::thread_group _threadGroup;
+
+	Node* _endWindow;
 };
 
 #endif
