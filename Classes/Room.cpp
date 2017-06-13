@@ -4,9 +4,9 @@
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
 #include "cocostudio/CocoStudio.h"
-using namespace cocostudio;
 #include "ui/cocosGUI.h"
 
+using namespace cocostudio;
 USING_NS_CC;
 
 bool g_isClient;

@@ -4,7 +4,10 @@
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
 #include "SimpleAudioEngine.h"
+#include "cocostudio/CocoStudio.h"
+#include "ui/cocosGUI.h"
 
+using namespace cocostudio;
 using namespace CocosDenshion;
 
 extern bool g_isClient;
@@ -72,8 +75,8 @@ Player* MainScene::addRole(float x,float y)
 	player->setPosition(Vec2(x, y));
 	player->setName("player");
 	player->setScale(0.8);
-	this->addChild(player,100);
-	player->setGlobalZOrder(100);
+	this->addChild(player,1);
+//	player->setGlobalZOrder(10);
 	return player;
 }
 
@@ -158,11 +161,13 @@ bool MainScene::addMap()
 	_tileMap->setPosition(Point(480, 320));
 	Size size = _tileMap->getContentSize();
 	log("map size: %f,%f", size.height, size.width);
-	addChild(_tileMap,0);
-
+	
+	
 	auto collidable = _tileMap->getLayer("collision");
 	_item = _tileMap->getLayer("item");
-	_item->setGlobalZOrder(50);
+	_item->setGlobalZOrder(1);
+	addChild(_tileMap,0); 
+
 	auto road = _tileMap->getLayer("road");
 
 	for (int i = 0; i < 15; ++i)
@@ -236,11 +241,54 @@ void MainScene::addItem()
 	}
 }
 
+void MainScene::addWinWindow()
+{
+	_endWindow = CSLoader::getInstance()->createNode("cocosstudio/endLayer.csb");
+	auto backLayout = dynamic_cast<ui::Layout*>(_endWindow->getChildByName("backLayout"));
+	auto backImage = dynamic_cast<ui::ImageView*>(backLayout->getChildByName("backImage"));
+	auto resultText = dynamic_cast<ui::Text*>(backImage->getChildByName("resultText"));
+	auto endButton = dynamic_cast<ui::Button*>(backImage->getChildByName("endButton"));
+
+	endButton->setTitleFontSize(30);
+	endButton->addTouchEventListener(CC_CALLBACK_1(MainScene::clickEndOkCallBack, this));
+	backImage->loadTexture("image/setRoomBack.png");
+	resultText->setFontSize(40);
+	resultText->setString("You Win!");
+	
+	this->addChild(_endWindow, 1);
+	_endWindow->setGlobalZOrder(1);
+
+}
+
+void MainScene::addLoseWindow()
+{
+	_endWindow = CSLoader::getInstance()->createNode("cocosstudio/endLayer.csb");
+	auto backLayout = dynamic_cast<ui::Layout*>(_endWindow->getChildByName("backLayout"));
+	auto backImage = dynamic_cast<ui::ImageView*>(backLayout->getChildByName("backImage"));
+	auto resultText = dynamic_cast<ui::Text*>(backImage->getChildByName("resultText"));
+	auto endButton = dynamic_cast<ui::Button*>(backImage->getChildByName("endButton"));
+
+	endButton->setTitleFontSize(30);
+	endButton->addTouchEventListener(CC_CALLBACK_1(MainScene::clickEndOkCallBack, this));
+	backImage->loadTexture("image/setRoomBack.png");
+	resultText->setFontSize(40);
+	resultText->setString("You Lose!");
+
+	this->addChild(_endWindow, 1);
+	_endWindow->setGlobalZOrder(1);
+}
+
+void MainScene::clickEndOkCallBack(Ref* obj)
+{
+	Director::getInstance()->end();
+	//	Director::sharedDirector()->end();
+}
+
 void MainScene::placeBomb(Player* player)
 {
 	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
 	auto bomb = player->getBomb();
-	this->addChild(bomb);
+	this->addChild(bomb,1); //changed
 	bomb->runAction(bomb->_animateBomb);
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
@@ -258,6 +306,10 @@ void MainScene::update(float dt)
 			if (_playerGroup.at(0) == _player)//我方获胜
 			{
 				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/win.wav", false);
+				
+				log("mark win");
+				addWinWindow();
+
 				_playerGroup.popBack();
 				break;
 			}
@@ -265,6 +317,10 @@ void MainScene::update(float dt)
 			{
 				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/lose.wav", false);
 				_playerGroup.popBack();
+
+				log("mark lose");
+				addLoseWindow();
+
 				break;
 			}
 		}	
@@ -275,9 +331,9 @@ void MainScene::update(float dt)
 
 			(*it)->runAction((*it)->_animateDeath);
 			DelayTime* delayAction = DelayTime::create(1.5f);
-			CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(Player::removeFromParent, *it));
+			CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(Player::removeFromParentAndCleanup, *it, false));
 			this->runAction(Sequence::create(delayAction, callFuncRemove, NULL));
-				
+
 			it = _playerGroup.erase(it);
 			continue;
 		}
@@ -602,7 +658,7 @@ void MainScene::initClientSend(MainScene* ptr)
 	auto down = ptr->_player->_down;
 
 	char buf[80];
-	while (ptr->_player->_isAlive)
+	while (ptr->_player->_isAlive&&ptr->_playerGroup.size() > 1)
 	{
 		if (left != ptr->_player->_left || right != ptr->_player->_right || up != ptr->_player->_up || down != ptr->_player->_down
 			|| ptr->_player->_sendBomb)
@@ -635,8 +691,7 @@ void MainScene::initClientSend(MainScene* ptr)
 		}
 	}
 
-	ptr->_listener_key->release();
-	ptr->_player = NULL;
+	
 	socket.close();
 }
 
