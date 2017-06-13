@@ -40,6 +40,7 @@ bool MainScene::init()
 
 	
 	addListener();
+	addMainBackground();
 	addMap();
 	addPlayer();
 
@@ -76,7 +77,7 @@ Player* MainScene::addRole(float x,float y)
 	player->setName("player");
 	player->setScale(0.8);
 	this->addChild(player,1);
-//	player->setGlobalZOrder(10);
+	player->setGlobalZOrder(10);
 	return player;
 }
 
@@ -278,6 +279,16 @@ void MainScene::addLoseWindow()
 	_endWindow->setGlobalZOrder(1);
 }
 
+void MainScene::addMainBackground()
+{
+	auto background = Sprite::create("image/mainBack.png");
+
+	auto size = Director::getInstance()->getVisibleSize();
+	background->setPosition(Vec2(size.width/2,size.height/2));
+
+	this->addChild(background);
+}
+
 void MainScene::clickEndOkCallBack(Ref* obj)
 {
 	Director::getInstance()->end();
@@ -288,7 +299,7 @@ void MainScene::placeBomb(Player* player)
 {
 	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
 	auto bomb = player->getBomb();
-	this->addChild(bomb,1); //changed
+	this->addChild(bomb,0); //changed
 	bomb->runAction(bomb->_animateBomb);
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
