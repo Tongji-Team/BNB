@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
 #include "SimpleAudioEngine.h"
+
 using namespace CocosDenshion;
 
 extern bool g_isClient;
@@ -17,6 +18,7 @@ extern int g_mapName;
 #define deltaX 240
 #define deltaY 560
 #define tileSize 32
+#define playerSize 14
 
 Scene* MainScene::createScene()
 {
@@ -299,10 +301,13 @@ void MainScene::update(float dt)
 				pos = checkPlayer->_checkPoint;
 				checkPlayer->_checkPoint = Point(0, 0);
 			}
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
+			if (this->checkCollidable(pos - Vec2(playerSize, playerSize), checkPlayer) 
+			 || this->checkCollidable(pos - Vec2(playerSize, -playerSize), checkPlayer))//检查左下和左上
 			{
 				pos.x += checkPlayer->getSpeed();
-				while (!this->checkCollidable(pos - Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos - Vec2(16, -16), checkPlayer))
+				//pos.x -= 1;
+				while (!this->checkCollidable(pos - Vec2(playerSize, playerSize), checkPlayer) 
+					&& !this->checkCollidable(pos - Vec2(playerSize, -playerSize), checkPlayer))
 				{
 					pos.x -= 1;
 				}
@@ -336,10 +341,13 @@ void MainScene::update(float dt)
 				pos = checkPlayer->_checkPoint;
 				checkPlayer->_checkPoint = Point(0, 0);
 			}
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
+			if (this->checkCollidable(pos + Vec2(playerSize, playerSize), checkPlayer) 
+			 || this->checkCollidable(pos + Vec2(playerSize, -playerSize), checkPlayer))//检查右下和右上
 			{
 				pos.x -= checkPlayer->getSpeed();
-				while (!this->checkCollidable(pos + Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos + Vec2(16, -16), checkPlayer))
+				//pos.x += 1;
+				while (!this->checkCollidable(pos + Vec2(playerSize, playerSize), checkPlayer) 
+					&& !this->checkCollidable(pos + Vec2(playerSize, -playerSize), checkPlayer))
 				{
 					pos.x += 1;
 				}
@@ -373,10 +381,13 @@ void MainScene::update(float dt)
 				pos = checkPlayer->_checkPoint;
 				checkPlayer->_checkPoint = Point(0, 0);
 			}
-			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
+			if (this->checkCollidable(pos + Vec2(playerSize, playerSize), checkPlayer) 
+			 || this->checkCollidable(pos + Vec2(-playerSize, playerSize), checkPlayer))//检查左上和右上
 			{
 				pos.y -= checkPlayer->getSpeed();
-				while (!this->checkCollidable(pos + Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))
+				//pos.y += 1;
+				while (!this->checkCollidable(pos + Vec2(playerSize, playerSize), checkPlayer) 
+					&& !this->checkCollidable(pos + Vec2(-playerSize, playerSize), checkPlayer))
 				{
 					pos.y += 1;
 				}
@@ -410,10 +421,13 @@ void MainScene::update(float dt)
 				pos = checkPlayer->_checkPoint;
 				checkPlayer->_checkPoint = Point(0, 0);
 			}
-			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
+			if (this->checkCollidable(pos - Vec2(playerSize, playerSize), checkPlayer) 
+			 || this->checkCollidable(pos - Vec2(-playerSize, playerSize), checkPlayer))//检查左下和右下
 			{
 				pos.y += checkPlayer->getSpeed();
-				while (!this->checkCollidable(pos - Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))
+				//pos.y-=1;
+				while (!this->checkCollidable(pos - Vec2(playerSize, playerSize), checkPlayer) 
+					&& !this->checkCollidable(pos - Vec2(-playerSize, playerSize), checkPlayer))
 				{
 					pos.y -= 1;
 				}
