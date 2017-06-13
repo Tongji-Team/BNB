@@ -36,6 +36,8 @@ public:
 
 	void addLoseWindow();  //失败窗口
 
+	void addMainBackground();  //游戏页面背景
+
 	void clickEndOkCallBack(Ref* obj);
 
 	cocos2d::Point tileCoordFromPosition(cocos2d::Point position);//将像素坐标点转换为地图瓦片坐标点
