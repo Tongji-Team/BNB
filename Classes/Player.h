@@ -18,6 +18,8 @@ public:
 	bool getUp(){ return _up; }
 	bool getDown(){ return _down; }
 
+	int getSpeed(){ return _speed; }
+
 	//接下来四个函数用于改变人物移动方向的信息
 	void alterLeft(){ _left = (_left == false ? true : false); }
 	void alterRight(){ _right = (_right == false ? true : false); }

@@ -301,7 +301,13 @@ void MainScene::update(float dt)
 			}
 			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(16, -16), checkPlayer))//检查左下和左上
 			{
-				log("collided");
+				pos.x += checkPlayer->getSpeed();
+				while (!this->checkCollidable(pos - Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos - Vec2(16, -16), checkPlayer))
+				{
+					pos.x -= 1;
+				}
+				pos.x += 1;
+				checkPlayer->setPosition(pos);
 			}
 			else
 			{
@@ -332,7 +338,13 @@ void MainScene::update(float dt)
 			}
 			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(16, -16), checkPlayer))//检查右下和右上
 			{
-				log("collided");
+				pos.x -= checkPlayer->getSpeed();
+				while (!this->checkCollidable(pos + Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos + Vec2(16, -16), checkPlayer))
+				{
+					pos.x += 1;
+				}
+				pos.x -= 1;
+				checkPlayer->setPosition(pos);
 			}
 			else
 			{
@@ -363,7 +375,13 @@ void MainScene::update(float dt)
 			}
 			if (this->checkCollidable(pos + Vec2(16, 16), checkPlayer) || this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))//检查左上和右上
 			{
-				log("collided");
+				pos.y -= checkPlayer->getSpeed();
+				while (!this->checkCollidable(pos + Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos + Vec2(-16, 16), checkPlayer))
+				{
+					pos.y += 1;
+				}
+				pos.y -= 1;
+				checkPlayer->setPosition(pos);
 			}
 			else
 			{
@@ -394,7 +412,13 @@ void MainScene::update(float dt)
 			}
 			if (this->checkCollidable(pos - Vec2(16, 16), checkPlayer) || this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))//检查左下和右下
 			{
-				log("collided");
+				pos.y += checkPlayer->getSpeed();
+				while (!this->checkCollidable(pos - Vec2(16, 16), checkPlayer) && !this->checkCollidable(pos - Vec2(-16, 16), checkPlayer))
+				{
+					pos.y -= 1;
+				}
+				pos.y += 1;
+				checkPlayer->setPosition(pos);
 			}
 			else
 			{
