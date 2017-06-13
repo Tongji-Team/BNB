@@ -1,5 +1,4 @@
 #include "MainScene.h"
-#include "VisibleRect.h"
 #include "Item.h"
 #include <cstdlib>
 #include <boost/asio.hpp>
@@ -156,7 +155,7 @@ bool MainScene::addMap()
 
 	auto origin = Vec2(0.5,0.5);
 	_tileMap->setAnchorPoint(origin);
-	_tileMap->setPosition(VisibleRect::center());
+	_tileMap->setPosition(Point(480, 320));
 	Size size = _tileMap->getContentSize();
 	log("map size: %f,%f", size.height, size.width);
 	addChild(_tileMap,0);

@@ -1,5 +1,4 @@
 #include "StartScene.h"
-#include "VisibleRect.h"
 #include "MainScene.h"
 #include"SignIn.h"
 #include"Room.h"
