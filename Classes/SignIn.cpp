@@ -61,14 +61,14 @@ bool SignIn::init()
 void SignIn::clickUpCall(Ref* obj)
 {
 	log("Sign up");
-	auto sharedFileUtils = FileUtils::getInstance();
-	std::string writablePath = sharedFileUtils->fullPathForFilename("/data/Users.txt");
-	std::ofstream outfile(writablePath.c_str(), std::ofstream::app);
-	outfile << _Name->getString() << " " << _Password->getString() << std::endl;
+//	auto sharedFileUtils = FileUtils::getInstance();
+//	std::string writablePath = sharedFileUtils->fullPathForFilename("/data/Users.txt");
+//	std::ofstream outfile(writablePath.c_str(), std::ofstream::app);
+//	outfile << _Name->getString() << " " << _Password->getString() << std::endl;
 
-	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
-	std::string name = _Name->getString();
-	label->setString("Hello " + name + " !");
+//	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
+//	std::string name = _Name->getString();
+//	label->setString("Hello " + name + " !");
 	Director::getInstance()->popScene();
 }
 
@@ -76,9 +76,9 @@ void SignIn::clickUpCall(Ref* obj)
 void SignIn::clickInCall(Ref* obj)
 {
 	log("Sign in");
-	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
-	std::string name = _Name->getString();
-	label->setString("Hello " + name + " !");
+//	LabelTTF* label = static_cast<LabelTTF*>(_startSce->getChildByTag(100));
+//	std::string name = _Name->getString();
+//	label->setString("Hello " + name + " !");
 	Director::getInstance()->popScene();
 }
 

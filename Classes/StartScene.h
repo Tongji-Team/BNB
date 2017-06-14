@@ -10,9 +10,16 @@ public:
 	bool init();
 	static Scene* createScene();
 
-	void onStart(Ref* obj);
-	void onSign(Ref* obj);
-	void onRoom(Ref* obj);
+	void addMenu();
+	void addSignLabel();
+	void addHelpLayer();
+	void removeHelpLayer();
+
+	void clickStartCallBack(Ref* obj);
+	void clickSignCallBack(Ref* obj);
+	void clickHelpCallBack(Ref* obj);
+	void clickHelpBackCallBack(Ref* obj);
+
 	CREATE_FUNC(StartScene);
 };
 
