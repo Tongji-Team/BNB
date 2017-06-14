@@ -162,6 +162,8 @@ void Room::clickRoomBackCallBack(Ref* obj)
 	log("click back");
 	auto scene = StartScene::createScene();
 	auto reScene = TransitionTurnOffTiles::create(1.0f, scene);
+	if (_isReceiving)
+		sendStop();
 	Director::getInstance()->replaceScene(reScene);
 }
 
@@ -433,6 +435,20 @@ void Room::removeReadyRoomLayer()
 	this->removeChild(_readyRoomLayer);
 }
 
+void Room::sendStop()
+{
+	namespace ip = boost::asio::ip;
+	boost::asio::io_service io_service;
+
+	ip::udp::socket socket(io_service, ip::udp::endpoint(g_clientEndpoint[0].address(), 6007));
+	ip::udp::endpoint receive_point(g_clientEndpoint[0].address(), 6003);
+
+	char message[5] = "stop";
+	socket.send_to(boost::asio::buffer(message, strlen(message) + 1), receive_point);
+
+	socket.close();
+}
+
 void Room::initBroadcast(Room* ptr)
 {
 	namespace ip = boost::asio::ip;
@@ -468,6 +484,8 @@ void Room::initReceiver(Room* ptr)
 	while (ptr->_clientNum < 5)
 	{
 		socket.receive_from(boost::asio::buffer(buf), sender_endpoint);
+		if (std::string(buf) == "stop")
+			break;
 		if (std::string(buf) != "connect")
 			continue;
 		ip::udp::endpoint client_point(sender_endpoint.address(), 6001);

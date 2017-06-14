@@ -48,6 +48,8 @@ public:
 	void static initClient(Room* ptr);
 	void static initReceiver(Room* ptr);
 
+	void sendStop();
+
 	void makeMapSeed();
 
 	boost::thread_group _threadGroup;
