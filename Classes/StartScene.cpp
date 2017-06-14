@@ -67,8 +67,9 @@ Scene* StartScene::createScene()
 void StartScene::onStart(Ref* obj)
 {
 	log("hello start");
-	auto scene = MainScene::createScene();
-	Director::getInstance()->replaceScene(scene);
+	auto scene = Room::createScene();
+	auto reScene = TransitionShrinkGrow::create(0.6f, scene);
+	Director::getInstance()->replaceScene(reScene);
 	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/readygo.wav", false);
 }
 
