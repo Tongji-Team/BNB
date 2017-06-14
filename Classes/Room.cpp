@@ -110,12 +110,12 @@ void Room::clickStartCallBack(Ref* obj, int mapNum)
 		return;
 	log("hello start");
 
-	auto scene = MainScene::createScene();
-	Director::getInstance()->replaceScene(scene);
 	_clicked = true;
 	_broadRunning = false;
-	if (_isReceiving)
-		sendStop();
+	_threadGroup.interrupt_all();
+
+	auto scene = MainScene::createScene();
+	Director::getInstance()->replaceScene(scene);
 }
 void Room::clickCreatRoomCallBack(Ref* obj, int mapNum)
 {
