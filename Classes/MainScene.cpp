@@ -132,6 +132,9 @@ void MainScene::addListener()
 
 Point MainScene::getBombPosition(Point coord)
 {
+	if (coord.x<0 || coord.x>14 || coord.y<0 || coord.y>14 || _mapProp[coord.x][coord.y] != 0)
+		return Point(-1, -1);
+
 	_mapProp[coord.x][coord.y] = 1;
 	return this->_mapCoord[coord.x][coord.y];
 }
@@ -297,15 +300,17 @@ void MainScene::clickEndOkCallBack(Ref* obj)
 
 void MainScene::placeBomb(Player* player)
 {
-	player->addBomb(player->getBombPower(), getBombPosition(tileCoordFromPosition(player->getPosition())));
+	if (!player->addBomb(player->getBombPower(),
+		getBombPosition(tileCoordFromPosition(player->getPosition()))))
+		return;
 	auto bomb = player->getBomb();
-	this->addChild(bomb,0); //changed
+	this->addChild(bomb); //changed
 	bomb->runAction(bomb->_animateBomb);
 	auto pos = tileCoordFromPosition(bomb->getPosition());
 	DelayTime* delayAction = DelayTime::create(2.0f);
 	CallFunc* callFuncRemove = CallFunc::create(CC_CALLBACK_0(MainScene::removeBlock, this, pos));
 	CallFunc* callFuncBomb = CallFunc::create(CC_CALLBACK_0(Bomb::boom, bomb, this, pos));
-	this->runAction(Sequence::create(delayAction, callFuncRemove, callFuncBomb, NULL));
+	this->runAction(Sequence::create(delayAction, callFuncBomb, callFuncRemove, NULL));
 }
 
 void MainScene::update(float dt)

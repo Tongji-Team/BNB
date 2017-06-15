@@ -57,6 +57,7 @@ void Bomb::boom(MainScene* ptr, Point coordPos)
 	body->setCollisionBitmask(0);
 	body->setContactTestBitmask(1);
 	spriteCenter->setPhysicsBody(body);
+
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/boom.wav", false);
 	
 	for (int i = 1; i <= count; ++i)

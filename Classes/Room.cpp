@@ -469,7 +469,7 @@ void Room::initBroadcast(Room* ptr)
 		sprintf(buf, "room: %s, player: %d, map: %d, mapSeed: %d",ptr->_myname.c_str(), ptr->_clientNum, ptr->_currentMapTag, g_mapSeed);
 		++icount;
 		socket.send_to(boost::asio::buffer(buf, strlen(buf) + 1), broadcast_endpoint);
-		boost::this_thread::sleep(boost::posix_time::seconds(2));
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 	}
 	socket.close();
 }

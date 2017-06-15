@@ -142,6 +142,8 @@ Point Player::walkUp()
 
 Bomb* Player::addBomb(int power, Vec2 pos)
 {
+	if (pos == Point(-1, -1))
+		return NULL;
 	_bomb = Bomb::create(power);
 	_bomb->setPosition(pos);
 	increaseBombNum();
