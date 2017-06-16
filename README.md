@@ -50,7 +50,7 @@
 - #### 地图
     
     - 图形化描述
-    ```
+    ```flow
     graph TB
     A[地图]-->B[障碍物]
     A-->C[道路]
@@ -59,7 +59,7 @@
     ```
     
     - 实现细节
-    ```
+    ```c++
     for (int i = 0; i < 15; ++i)
 	{
 		std::vector<Vec2> map;
@@ -117,7 +117,7 @@
 - #### 玩家操作的人物：Player类
 
     - 图形化描述
-    ```
+    ```flow
     graph TB
     A[Player]-->B[移动]
     A-->C[动画]
@@ -129,7 +129,7 @@
     ```
     - 人物实体  
     
-        ![image](C:\cocos2d-x-3.14.1\BNB\Resources\player.png)
+        ![image](https://github.com/Tongji-Team/BNB/blob/master/Resources/image/player.png)
         
         使用精灵帧中的图片实现
     
@@ -197,7 +197,7 @@
         - 有些小技巧
         
     - 碰撞
-    ```
+    ```c++
     bool MainScene::onContactBegin(const PhysicsContact& contact)
     {
     	auto objA = 
@@ -291,7 +291,7 @@
         
 - #### 技术细节
 
-```
+```c++
 class Room : public cocos2d::Layer
 {
 public:
@@ -312,7 +312,7 @@ public:
 - #### UI界面
 
     - 图形化描述
-    ```
+    ```flow
     graph TB
 
     A[Start]-->|选择地图|C[创建房间]
@@ -339,7 +339,7 @@ public:
 - 房间相关类
 
     - 图形化描述
-    ```
+    ```flow
     graph TB
     A[RoomVec]-->B[RoomItem_1]
     A-->C[RoomItem_2]
